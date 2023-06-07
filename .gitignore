@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+*.DS_Store
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Images/Outputs
+*.png
+*.pdf
+*.jpeg
+*.jpg
+#*.txt
+*.zip
+#*.pkl
+
+# Txt exceptions
+!requirements.txt
+
+## Data
+Data/*
+
+#*.csv
+*.numbers
+*.xlsx
+*.dot
+*.doc
+*.sav
+
+
+# C extensions
+*.so
