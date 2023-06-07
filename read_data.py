@@ -25,11 +25,6 @@ order = y.nunique()
 X_and_y = pd.concat([X, y], axis=1)
 X_and_y.to_csv("Data/X_and_y.csv")
 
-# X_and_y_order = X_and_y.copy()
-# X_and_y_order[outcome].cat.reorder_categories(order, inplace=True)
-# X_and_y_order = X_and_y_order.sort_values(outcome)
-# X_and_y_order.reset_index(inplace=True)
-
 cat_names = list(meta.variable_value_labels["sport_kat_b"].values())
 cat_nums = list(meta.variable_value_labels["sport_kat_b"].keys())
 short_names = []

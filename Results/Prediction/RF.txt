@@ -1,0 +1,8 @@
+RF:
+Training done. Time taken: 0:01:27.823491
+params tried:
+{'classifier__max_depth': [15], 'classifier__max_features': [0.3], 'classifier__min_samples_split': [2], 'classifier__n_estimators': [700], 'classifier__random_state': [93]}
+
+Best training f1_weighted score: 0.16. Best model params:
+{'classifier__max_depth': 15, 'classifier__max_features': 0.3, 'classifier__min_samples_split': 2, 'classifier__n_estimators': 700, 'classifier__random_state': 93}.
+
