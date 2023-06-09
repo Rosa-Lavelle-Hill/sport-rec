@@ -13,7 +13,7 @@ from Functions.pipeline import construct_pipelines, construct_smote_pipelines, c
 
 
 def prediction(outcome, df,
-               test_run,
+               test_run, start_string, t,
                use_pre_trained, smote=True,
                do_GB_only=False,
                do_testset_evaluation=True):
@@ -60,7 +60,7 @@ def prediction(outcome, df,
                 continue
             #     skip for now....
 
-            save_file = "Results/Prediction/{}.txt".format(model_name)
+            save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)
 
             print("Running {} model".format(model_name))
             print("{}:".format(model_name),
@@ -130,7 +130,7 @@ def prediction(outcome, df,
             continue
         #     todo: fix GB
 
-        save_file = "Results/Prediction/{}.txt".format(model_name)
+        save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)
         best_model_param_values = best_params_dict[model_name]
 
         # set pipeline to use best params
@@ -166,7 +166,7 @@ def prediction(outcome, df,
                                   title='Confusion matrix',
                                   cmap=None,
                                   normalize=False,
-                                  save_name="cm_{}".format(model_name),
+                                  save_name="cm_{}_{}{}".format(model_name, start_string, t),
                                   save_path=cm_save_path)
 
             test_scores[model_name] = {"F1_weighted": test_score_f1_weighted,
@@ -175,7 +175,7 @@ def prediction(outcome, df,
     if do_testset_evaluation == True:
         test_scores = pd.DataFrame.from_dict(test_scores)
         test_scores.to_csv(
-            "Results/Prediction/all_test_scores.csv")
+            "Results/Prediction/all_test_scores_{}{}.csv".format(start_string, t))
 
     return optimised_pipes
 

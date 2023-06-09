@@ -1,10 +1,13 @@
-# from Functions.plotting import plot_results
+
+import pandas as pd
+import datetime as dt
 from Functions.plotting import plot_results
 from Functions.prediction import prediction
-import pandas as pd
-
 from Functions.preprocess import preprocess
 from fixed_params import outcome
+
+use_pre_trained = False
+test_run = False
 
 df = pd.read_csv("Data/X_and_y.csv", index_col=[0])
 
@@ -13,8 +16,19 @@ df = pd.read_csv("Data/X_and_y.csv", index_col=[0])
 df = preprocess(df, outcome)
 
 # (2) prediction
-optimised_pipes = prediction(outcome=outcome, df=df, test_run=True,
-                             use_pre_trained=False, smote=True)
+start = dt.datetime.now()
+if use_pre_trained == False:
+    start_string = start.strftime('_%d_%b_%Y__%H.%M')
+else:
+    start_string = "XX"
+if test_run == True:
+    t= "_test"
+else:
+    t= ""
+
+optimised_pipes = prediction(outcome=outcome, df=df, test_run=test_run,
+                             use_pre_trained=False, smote=True,
+                             start_string=start_string, t=t)
 
 # (3) plot prediction results
 results_df = pd.read_csv("Results/Prediction/all_test_scores.csv")
@@ -28,7 +42,7 @@ x_ticks = ["Dummy Most Frequent", "Dummy Random",
 f1_weight = results_df[results_df.Model == "F1_weighted"]
 log_loss = results_df[results_df.Model == "Log_loss"]
 
-save_name = "all_predict_f1weight"
+save_name = "all_predict_f1weight_{}{}".format(start_string, t)
 plot_results(y="F1_weighted", data=f1_weight, colour='Model',
              save_path=save_path, save_name=save_name,
              xlab="Prediction Models", ylab="F1 weighted",
@@ -36,7 +50,7 @@ plot_results(y="F1_weighted", data=f1_weight, colour='Model',
              x_ticks=x_ticks
              )
 
-save_name = "all_predict_logloss"
+save_name = "all_predict_logloss_{}{}".format(start_string, t)
 plot_results(y="Log_loss", data=log_loss, colour='Model',
              save_path=save_path, save_name=save_name,
              xlab="Prediction Models", ylab="Log loss",

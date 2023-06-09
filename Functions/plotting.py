@@ -113,7 +113,7 @@ def plot_roc(probs, y_test, model_name):
 def plot_results(y, data, colour, save_path, save_name,
                                xlab, ylab, title, x_ticks, legend=False,
                                fontsize=12, legend_pos="lower right"):
-    palette = ["plum", "cornflowerblue", "coral", "mediumaquamarine", "peru", "lemonchiffon"]
+    palette = ["plum", "cornflowerblue", "coral", "mediumaquamarine", "peru", "khaki"]
 
     sns.set_palette(palette)
     fig, ax = plt.subplots()
