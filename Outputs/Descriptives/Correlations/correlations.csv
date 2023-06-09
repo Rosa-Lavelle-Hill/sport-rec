@@ -1,6 +1,6 @@
 ,,Absolute_corr
 Zind_figap,Zind_actenj,0.4039055901501322
-sport_minwk,sport_min_kat,0.37736428627922497
+sport_minwk,sport_min_kat,0.3934785044685923
 Zind_figap,Zind_compperf,0.3589831020690306
 Zind_figap,Zind_con,0.3391342566489072
 Zind_figap,Zind_aes,0.28084188894727075
@@ -26,13 +26,13 @@ age,Zind_disstre,0.1525362950491385
 Zind_disstre,Zind_compperf,0.1419544852151803
 age,Zind_con,0.14045427068513475
 age,Zind_aes,0.133060883665611
-age,sport_min_kat,0.12801694031823876
 Zind_figap,Zind_disstre,0.1249035272492235
+age,sport_min_kat,0.11560351708390416
 Zind_disstre,Zind_actenj,0.11050657242704258
-age,sport_minwk,0.10096088101982276
 Zind_actenj,Zind_con,0.09852939850396635
 sport_minwk,Zind_fitheal,0.09268149558472165
 age,Zind_actenj,0.09201991455679487
+age,sport_minwk,0.09088298988863064
 Zind_compperf,Zind_con,0.08879442634324503
 sport_min_kat,Zind_actenj,0.08430348884441563
 Zind_actenj,Zind_aes,0.08258048750964125

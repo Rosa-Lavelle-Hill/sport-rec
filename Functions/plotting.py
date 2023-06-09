@@ -113,11 +113,11 @@ def plot_roc(probs, y_test, model_name):
 def plot_results(y, data, colour, save_path, save_name,
                                xlab, ylab, title, x_ticks, legend=False,
                                fontsize=12, legend_pos="lower right"):
-    palette = ["plum", "cornflowerblue", "coral", "mediumaquamarine"]
+    palette = ["plum", "cornflowerblue", "coral", "mediumaquamarine", "peru", "lemonchiffon"]
 
     sns.set_palette(palette)
     fig, ax = plt.subplots()
-    plt.figure(figsize=(5, 4))
+    plt.figure(figsize=(6, 4))
 
     data = data.transpose().reset_index()
     data.columns=data.iloc[0]
@@ -125,13 +125,14 @@ def plot_results(y, data, colour, save_path, save_name,
     data.rename(columns={'Unnamed: 0': 'Model'}, inplace=True)
 
     g=sns.barplot(x="Model", y=y, data=data, hue=colour, dodge=False,
-                  palette=sns.color_palette(palette, 3))
+                  palette=sns.color_palette(palette, 6))
 
     plt.title(title, fontsize=fontsize)
     plt.xlabel(xlab, fontsize=fontsize)
     plt.ylabel(ylab, fontsize=fontsize)
 
     g.set_xticklabels(x_ticks)
+    plt.xticks(rotation=70)
 
     plt.tight_layout()
     if legend == True:

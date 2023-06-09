@@ -2,13 +2,14 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import joblib
+from sklearn.dummy import DummyClassifier
 from sklearn.metrics import confusion_matrix
 
 from Functions.plotting import plot_confusion_matrix
 from fixed_params import decimal_places, scoring, verbose, random_state, nfolds, categorical_features
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
-from Functions.pipeline import construct_pipelines, construct_smote_pipelines
+from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
 
 
 def prediction(outcome, df,
@@ -101,9 +102,23 @@ def prediction(outcome, df,
         for model_name in model_names:
             best_params_dict[model_name] = joblib.load(params_save + '{}.pkl'.format(model_name))
 
-    # Test Model
 
+    # Test Baseline Models
     test_scores = {}
+    print("Evaluating performance on test set of baseline models")
+    pipe_dum_mf, pipe_dum_random, pipe_dum_strat = construct_dummy_pipelines(numeric_features_index, categorical_features_index)
+
+    for dum_model, dum_name in zip([pipe_dum_mf, pipe_dum_random, pipe_dum_strat], ["Dummy_MF", "Dummy_Random", "Dummy_Stratified"]):
+        dum_model.fit(X_train, y_train)
+        y_pred = dum_model.predict(X_test)
+        y_prob = dum_model.predict_proba(X_test)
+        test_score_f1_weighted = round(metrics.f1_score(y_test, y_pred, average="weighted"), decimal_places)
+        test_log_loss = round(metrics.log_loss(y_test, y_prob), decimal_places)
+
+        test_scores[dum_name] = {"F1_weighted": test_score_f1_weighted,
+                                "Log_loss": test_log_loss}
+
+    # Test Model
     optimised_pipes = {}
     for model_name, best_model_params, pipe in zip(model_names, best_params_dict, pipes):
 
@@ -144,9 +159,6 @@ def prediction(outcome, df,
                                                                     test_log_loss, test_cm),
                   file=open(save_file, "a"))
 
-            test_scores[model_name] = {"F1_weighted": test_score_f1_weighted,
-                                       "Log_loss": test_log_loss}
-
             # plot confusion_matrix
             cm_save_path = "Results/Prediction/Confusion_Matrix/"
             plot_confusion_matrix(cm,
@@ -156,6 +168,9 @@ def prediction(outcome, df,
                                   normalize=False,
                                   save_name="cm_{}".format(model_name),
                                   save_path=cm_save_path)
+
+            test_scores[model_name] = {"F1_weighted": test_score_f1_weighted,
+                                       "Log_loss": test_log_loss}
 
     if do_testset_evaluation == True:
         test_scores = pd.DataFrame.from_dict(test_scores)

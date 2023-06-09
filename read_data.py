@@ -35,6 +35,11 @@ for name in cat_names:
     short_names.append(short_name)
     very_short_names.append(very_short_name)
 
+save_meta = "Data/Meta/"
+pd.DataFrame(cat_names).to_csv(save_meta + "full_outcome_names.csv")
+pd.DataFrame(short_names).to_csv(save_meta + "short_outcome_names.csv")
+pd.DataFrame(very_short_names).to_csv(save_meta + "v_short_outcome_names.csv")
+
 # plot freq of categories
 plot_count(data=X_and_y, x=outcome, hue=outcome, xlabs=very_short_names,
            save_path="Outputs/Descriptives/", save_name = "y_hist",
