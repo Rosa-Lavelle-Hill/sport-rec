@@ -1,8 +1,50 @@
 RF:
-Training done. Time taken: 0:01:27.823491
+Training done. Time taken: 0:00:07.397075
 params tried:
-{'classifier__max_depth': [15], 'classifier__max_features': [0.3], 'classifier__min_samples_split': [2], 'classifier__n_estimators': [700], 'classifier__random_state': [93]}
+{'classifier__max_depth': [5], 'classifier__max_features': [0.3], 'classifier__min_samples_split': [2], 'classifier__n_estimators': [50], 'classifier__random_state': [93]}
 
-Best training f1_weighted score: 0.16. Best model params:
-{'classifier__max_depth': 15, 'classifier__max_features': 0.3, 'classifier__min_samples_split': 2, 'classifier__n_estimators': 700, 'classifier__random_state': 93}.
+Best training f1_weighted score: 0.09. Best model params:
+{'classifier__max_depth': 5, 'classifier__max_features': 0.3, 'classifier__min_samples_split': 2, 'classifier__n_estimators': 50, 'classifier__random_state': 93}.
 
+Best RF model performance on test data;F1_weighted: 0.09, log loss: 2.44, CM: 
+ [[[5375   96]
+  [  91    2]]
+
+ [[4368  663]
+  [ 398  135]]
+
+ [[4118   42]
+  [1383   21]]
+
+ [[5256    0]
+  [ 308    0]]
+
+ [[4426   12]
+  [1116   10]]
+
+ [[4941  240]
+  [ 339   44]]
+
+ [[5245  251]
+  [  57   11]]
+
+ [[4835  513]
+  [ 142   74]]
+
+ [[3825 1433]
+  [ 146  160]]
+
+ [[5200   86]
+  [ 262   16]]
+
+ [[4498  698]
+  [ 169  199]]
+
+ [[5192   51]
+  [ 316    5]]
+
+ [[5362  109]
+  [  86    7]]
+
+ [[4833  664]
+  [  45   22]]]

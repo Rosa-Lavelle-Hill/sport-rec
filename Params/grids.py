@@ -9,7 +9,8 @@ gb_params = {"classifier__min_samples_leaf": [5, 10, 20, 30],
              "classifier__max_depth": [5, 10, 15, 20],
              "classifier__random_state": [93]}
 
-enet_params = {"classifier__tol": [0.001, 0.01],
-               "classifier__max_iter": [1000],
-               "classifier__l1_ratio": [0.1, 0.25, 0.5, 0.75, 1],
-               "classifier__alpha": [0.1, 0.2, 0.5, 1, 1.5, 2]}
+log_params = {'classifier__C':[0.001, 0.01, 0.1, 1, 10, 100, 1000],
+              "classifier__penalty": ['l1', 'l2']}
+
+enet_params = {"classifier__C":[0.001, 0.01, 0.1, 1, 10, 100, 1000],
+              "classifier__l1_ratio": [0.2, 0.5, 0.8]}

@@ -13,7 +13,7 @@ df = preprocess(df, outcome)
 
 # (2) prediction
 optimised_pipes = prediction(outcome=outcome, df=df, test_run=True,
-                             use_pre_trained=False)
+                             use_pre_trained=False, smote=True)
 #
 # # (3) plot prediction results
 # results_df = pd.read_csv("{}/Results{}/Prediction/all_test_scores_{}{}.csv".format(analysis, m, start_string, t))

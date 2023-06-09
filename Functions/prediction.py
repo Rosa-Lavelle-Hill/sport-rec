@@ -1,16 +1,19 @@
-
+import numpy as np
 import pandas as pd
 import datetime as dt
 import joblib
+from sklearn.metrics import confusion_matrix
 
+from Functions.plotting import plot_confusion_matrix
 from fixed_params import decimal_places, scoring, verbose, random_state, nfolds, categorical_features
 from sklearn import metrics
-from sklearn.model_selection import train_test_split, GridSearchCV
-from Functions.pipeline import construct_pipelines
+from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
+from Functions.pipeline import construct_pipelines, construct_smote_pipelines
+
 
 def prediction(outcome, df,
                test_run,
-               use_pre_trained,
+               use_pre_trained, smote=True,
                do_GB_only=False,
                do_testset_evaluation=True):
 
@@ -22,9 +25,14 @@ def prediction(outcome, df,
     categorical_features.remove(outcome)
     numeric_features_index = X.drop(categorical_features, inplace=False, axis=1).columns
     categorical_features_index = X[categorical_features].columns
-    pipe_rf, pipe_gb = construct_pipelines(numeric_features_index, categorical_features_index)
-    pipes = [pipe_rf, pipe_gb]
-    model_names = ["RF", "GB"]
+
+    if smote == True:
+        pipe_log, pipe_enet, pipe_rf, pipe_gb = construct_smote_pipelines(numeric_features_index, categorical_features_index)
+    else:
+        pipe_log, pipe_enet, pipe_rf, pipe_gb = construct_pipelines(numeric_features_index, categorical_features_index)
+
+    pipes = [pipe_log, pipe_enet, pipe_rf, pipe_gb]
+    model_names = ["Log", "Enet", "RF", "GB"]
 
     # split data into train and test splits
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
@@ -34,11 +42,11 @@ def prediction(outcome, df,
     params_save = "Results/Best_Params/"
     if use_pre_trained == False:
         if test_run == True:
-            from Params.test_grids import rf_params, gb_params
+            from Params.test_grids import log_params, enet_params, rf_params, gb_params
         else:
-            from Params.grids import rf_params, gb_params
+            from Params.grids import log_params, enet_params, rf_params, gb_params
 
-        param_list = [rf_params, gb_params]
+        param_list = [log_params, enet_params, rf_params, gb_params]
 
         # Training
         for model_name, pipe, params in zip(model_names, pipes, param_list):
@@ -47,15 +55,23 @@ def prediction(outcome, df,
                 if (model_name == "LM") or (model_name == "RF"):
                     continue
 
+            if model_name == "GB":
+                continue
+            #     skip for now....
+
             save_file = "Results/Prediction/{}.txt".format(model_name)
 
             print("Running {} model".format(model_name))
             print("{}:".format(model_name),
                   file=open(save_file, "w"))
 
+            stratified_kfold = StratifiedKFold(n_splits=nfolds,
+                                               shuffle=True,
+                                               random_state=random_state)
+
             grid_search = GridSearchCV(estimator=pipe,
                                        param_grid=params,
-                                       cv=nfolds,
+                                       cv=stratified_kfold,
                                        scoring=scoring,
                                        verbose=verbose,
                                        refit=False,
@@ -92,7 +108,7 @@ def prediction(outcome, df,
     for model_name, best_model_params, pipe in zip(model_names, best_params_dict, pipes):
 
         if do_GB_only == True:
-            if (model_name == "LM") or (model_name == "RF"):
+            if (model_name != "GB"):
                 continue
 
         if model_name == "GB":
@@ -115,14 +131,31 @@ def prediction(outcome, df,
 
             # use pipeline to make predictions
             y_pred = pipe.predict(X_test)
+            y_prob = pipe.predict_proba(X_test)
 
             # evaluate/score best out of sample
-            test_score_f1_weighted = round(metrics.r2_score(y_test, y_pred), decimal_places)
+            test_score_f1_weighted = round(metrics.f1_score(y_test, y_pred, average="weighted"), decimal_places)
+            test_log_loss = round(metrics.log_loss(y_test, y_prob), decimal_places)
+            test_cm = metrics.multilabel_confusion_matrix(y_test, y_pred)
+            cm = confusion_matrix(y_test, y_pred)
 
-            print("Best {} model performance on test data:\nR2: {}; mae: {}".format(model_name, test_score_f1_weighted),
+            print("Best {} model performance on test data;"
+                  "F1_weighted: {}, log loss: {}, CM: \n {}".format(model_name, test_score_f1_weighted,
+                                                                    test_log_loss, test_cm),
                   file=open(save_file, "a"))
 
-            test_scores[model_name] = {"F1_weighted": test_score_f1_weighted}
+            test_scores[model_name] = {"F1_weighted": test_score_f1_weighted,
+                                       "Log_loss": test_log_loss}
+
+            # plot confusion_matrix
+            cm_save_path = "Results/Prediction/Confusion_Matrix/"
+            plot_confusion_matrix(cm,
+                                  target_names = range(1, 15),
+                                  title='Confusion matrix',
+                                  cmap=None,
+                                  normalize=False,
+                                  save_name="cm_{}".format(model_name),
+                                  save_path=cm_save_path)
 
     if do_testset_evaluation == True:
         test_scores = pd.DataFrame.from_dict(test_scores)
