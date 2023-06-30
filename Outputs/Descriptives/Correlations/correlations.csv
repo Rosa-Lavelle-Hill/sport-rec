@@ -29,6 +29,7 @@ age,Zind_aes,0.133060883665611
 Zind_figap,Zind_disstre,0.1249035272492235
 age,sport_min_kat,0.11560351708390416
 Zind_disstre,Zind_actenj,0.11050657242704258
+ID_new,Zind_actenj,0.10744446042698987
 Zind_actenj,Zind_con,0.09852939850396635
 sport_minwk,Zind_fitheal,0.09268149558472165
 age,Zind_actenj,0.09201991455679487
@@ -37,10 +38,19 @@ Zind_compperf,Zind_con,0.08879442634324503
 sport_min_kat,Zind_actenj,0.08430348884441563
 Zind_actenj,Zind_aes,0.08258048750964125
 sport_min_kat,Zind_fitheal,0.07786655283920679
+ID_new,Zind_compperf,0.07664234281785554
+ID_new,Zind_figap,0.06995427460050775
+ID_new,age,0.0657360796165648
 sport_minwk,Zind_aes,0.06514582024410402
+ID_new,Zind_aes,0.05712143722174485
+ID_new,Zind_disstre,0.04800928963810477
 sport_min_kat,Zind_aes,0.04616020795611369
 sport_minwk,Zind_actenj,0.04228052764302973
 sport_minwk,Zind_disstre,0.042126341702957745
 sport_min_kat,Zind_con,0.0386361184998772
 sport_minwk,Zind_con,0.037096170947409836
+ID_new,sport_min_kat,0.030251847743926686
+ID_new,sport_minwk,0.0171080725312675
+ID_new,Zind_fitheal,0.013655832184926863
 sport_min_kat,Zind_disstre,0.005266475999061651
+ID_new,Zind_con,0.005178168706193864

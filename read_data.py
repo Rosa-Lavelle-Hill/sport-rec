@@ -10,10 +10,10 @@ df, meta = pyreadstat.read_sav('Data/all_long.sav')
 
 # predicting cat sport b from goal variables
 outcome = "sport_kat_b"
-person_id = df['ID_new']
+person_id = ['ID_new']
 goal_vars = list(df.iloc[:, 53:61].columns)
 other_vars = ['sex', 'age', 'edu', 'sport_minwk', 'sport_min_kat']
-X = df[other_vars + goal_vars]
+X = df[person_id + other_vars + goal_vars]
 y = df[outcome].astype('category')
 
 # descriptives on outcome

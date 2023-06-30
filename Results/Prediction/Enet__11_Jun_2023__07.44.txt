@@ -1,5 +1,5 @@
 Enet:
-Training done. Time taken: 0:02:20.240327
+Training done. Time taken: 0:11:08.402968
 params tried:
 {'classifier__min_samples_split': [2, 3, 4, 5], 'classifier__max_depth': [10, 15, 20], 'classifier__n_estimators': [300, 500, 700], 'classifier__random_state': [93], 'classifier__max_features': [0.3, 0.4, 0.5, 0.6]}
 
@@ -48,3 +48,45 @@ Best Enet model performance on test data;F1_weighted: 0.11, log loss: 2.48, CM:
 
  [[4781  526]
   [  42   23]]]
+Best Enet model performance on test data;F1_weighted: 0.1, log loss: 2.48, CM: 
+ [[[5006  275]
+  [  82    9]]
+
+ [[4409  443]
+  [ 431   89]]
+
+ [[3961   39]
+  [1351   21]]
+
+ [[5070    1]
+  [ 301    0]]
+
+ [[4166  126]
+  [1030   50]]
+
+ [[4533  466]
+  [ 303   70]]
+
+ [[5114  194]
+  [  50   14]]
+
+ [[4605  564]
+  [ 120   83]]
+
+ [[4098  976]
+  [ 171  127]]
+
+ [[4949  154]
+  [ 244   25]]
+
+ [[4579  450]
+  [ 178  165]]
+
+ [[4865  203]
+  [ 279   25]]
+
+ [[4993  290]
+  [  77   12]]
+
+ [[4830  477]
+  [  41   24]]]

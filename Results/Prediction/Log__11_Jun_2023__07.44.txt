@@ -1,5 +1,5 @@
 Log:
-Training done. Time taken: 0:01:48.084193
+Training done. Time taken: 0:08:32.265920
 params tried:
 {'classifier__min_samples_split': [2, 3, 4, 5], 'classifier__max_depth': [10, 15, 20], 'classifier__n_estimators': [300, 500, 700], 'classifier__random_state': [93], 'classifier__max_features': [0.3, 0.4, 0.5, 0.6]}
 
@@ -47,4 +47,46 @@ Best Log model performance on test data;F1_weighted: 0.1, log loss: 2.48, CM:
   [  82    7]]
 
  [[4763  544]
+  [  42   23]]]
+Best Log model performance on test data;F1_weighted: 0.1, log loss: 2.48, CM: 
+ [[[5007  274]
+  [  83    8]]
+
+ [[4382  470]
+  [ 426   94]]
+
+ [[3976   24]
+  [1356   16]]
+
+ [[5069    2]
+  [ 301    0]]
+
+ [[4166  126]
+  [1035   45]]
+
+ [[4535  464]
+  [ 304   69]]
+
+ [[5126  182]
+  [  52   12]]
+
+ [[4562  607]
+  [ 120   83]]
+
+ [[4127  947]
+  [ 171  127]]
+
+ [[4955  148]
+  [ 247   22]]
+
+ [[4560  469]
+  [ 173  170]]
+
+ [[4897  171]
+  [ 282   22]]
+
+ [[4990  293]
+  [  77   12]]
+
+ [[4815  492]
   [  42   23]]]

@@ -1,0 +1,92 @@
+RF:
+Training done. Time taken: 22:20:54.956257
+params tried:
+{'classifier__min_samples_split': [2, 3, 4, 5], 'classifier__max_depth': [10, 15, 20], 'classifier__n_estimators': [300, 500, 700], 'classifier__random_state': [93], 'classifier__max_features': [0.3, 0.4, 0.5, 0.6]}
+
+Best training f1_weighted score: 0.14. Best model params:
+{'classifier__max_depth': 10, 'classifier__max_features': 0.6, 'classifier__min_samples_split': 5, 'classifier__n_estimators': 300, 'classifier__random_state': 93}.
+
+Best RF model performance on test data;F1_weighted: 0.13, log loss: 2.36, CM: 
+ [[[5142  139]
+  [  86    5]]
+
+ [[4317  535]
+  [ 415  105]]
+
+ [[3730  270]
+  [1281   91]]
+
+ [[5015   56]
+  [ 301    0]]
+
+ [[4095  197]
+  [1018   62]]
+
+ [[4485  514]
+  [ 281   92]]
+
+ [[5176  132]
+  [  58    6]]
+
+ [[4837  332]
+  [ 149   54]]
+
+ [[4158  916]
+  [ 187  111]]
+
+ [[4878  225]
+  [ 237   32]]
+
+ [[4521  508]
+  [ 180  163]]
+
+ [[4820  248]
+  [ 269   35]]
+
+ [[5168  115]
+  [  82    7]]
+
+ [[4900  407]
+  [  50   15]]]
+Best RF model performance on test data;F1_weighted: 0.16, log loss: 2.31, CM: 
+ [[[5129  152]
+  [  86    5]]
+
+ [[4340  512]
+  [ 426   94]]
+
+ [[3796  204]
+  [1271  101]]
+
+ [[4995   76]
+  [ 272   29]]
+
+ [[3968  324]
+  [ 936  144]]
+
+ [[4546  453]
+  [ 279   94]]
+
+ [[5210   98]
+  [  61    3]]
+
+ [[4781  388]
+  [ 142   61]]
+
+ [[4209  865]
+  [ 168  130]]
+
+ [[4932  171]
+  [ 244   25]]
+
+ [[4561  468]
+  [ 171  172]]
+
+ [[4834  234]
+  [ 263   41]]
+
+ [[5144  139]
+  [  82    7]]
+
+ [[4943  364]
+  [  47   18]]]

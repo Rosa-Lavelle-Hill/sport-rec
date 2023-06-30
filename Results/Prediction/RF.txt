@@ -1,1 +1,50 @@
 RF:
+Training done. Time taken: 5:05:29.479002
+params tried:
+{'classifier__min_samples_split': [2, 3, 4, 5], 'classifier__max_depth': [10, 15, 20], 'classifier__n_estimators': [300, 500, 700], 'classifier__random_state': [93], 'classifier__max_features': [0.3, 0.4, 0.5, 0.6]}
+
+Best training f1_weighted score: 0.15. Best model params:
+{'classifier__max_depth': 20, 'classifier__max_features': 0.3, 'classifier__min_samples_split': 3, 'classifier__n_estimators': 700, 'classifier__random_state': 93}.
+
+Best RF model performance on test data;F1_weighted: 0.12, log loss: 2.89, CM: 
+ [[[5193   88]
+  [  85    6]]
+
+ [[4308  544]
+  [ 495   25]]
+
+ [[3107  893]
+  [1215  157]]
+
+ [[4756  315]
+  [ 299    2]]
+
+ [[3590  702]
+  [ 934  146]]
+
+ [[4635  364]
+  [ 312   61]]
+
+ [[5231   77]
+  [  62    2]]
+
+ [[4950  219]
+  [ 171   32]]
+
+ [[4725  349]
+  [ 249   49]]
+
+ [[4797  306]
+  [ 233   36]]
+
+ [[4685  344]
+  [ 257   86]]
+
+ [[4741  327]
+  [ 269   35]]
+
+ [[5195   88]
+  [  83    6]]
+
+ [[5198  109]
+  [  61    4]]]

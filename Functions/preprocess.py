@@ -7,8 +7,10 @@ from Functions.plotting import plot_hist, plot_count
 def preprocess(df, outcome):
 
     # drop rows were dv Missing:
+    print("original data size")
     print(df.shape)
     df.dropna(subset=[outcome], axis=0, inplace=True, how='any')
+    print("dropped where no DV info")
     print(df.shape)
 
     # missing data inspection
@@ -53,6 +55,7 @@ def preprocess(df, outcome):
               )
 
     # remove indivs where all goals missing:
+    print("dropped where not all goals present")
     df.dropna(axis=0, how="all", subset=goal_vars, inplace=True)
     print(df.shape)
 
@@ -73,6 +76,13 @@ def preprocess(df, outcome):
     df_num = df.drop(categorical_features, axis=1)
     save_path= "Outputs/Descriptives/Correlations/"
     check_cors(df_num, save_path=save_path, save_name="correlations.csv")
+
+    # save preprocessed data:
+    df.to_csv("Data/Preprocessed/preprocessed.csv")
+
+    # count unique individuals:
+    unique_ids = df['ID_new'].nunique()
+    print("unique individuals: " + str(unique_ids))
 
     return df
 

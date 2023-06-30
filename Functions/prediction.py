@@ -18,6 +18,9 @@ def prediction(outcome, df,
                do_GB_only=False,
                do_testset_evaluation=True):
 
+    # remove person identifier
+    df.drop('ID_new', axis=1)
+
     # redefine X and y
     X = df.drop(outcome, axis=1)
     y = df[outcome]
@@ -66,6 +69,7 @@ def prediction(outcome, df,
             print("{}:".format(model_name),
                   file=open(save_file, "w"))
 
+            # preserve the distribution of data across outcome classes
             stratified_kfold = StratifiedKFold(n_splits=nfolds,
                                                shuffle=True,
                                                random_state=random_state)
@@ -88,7 +92,7 @@ def prediction(outcome, df,
             print("Training done. Time taken: {}".format(training_time), file=open(save_file, "a"))
 
             best_params = grid_search.best_params_
-            joblib.dump(best_params, params_save + '{}.pkl'.format(model_name), compress=1)
+            joblib.dump(best_params, params_save + '{}_{}{}.pkl'.format(model_name, start_string, t), compress=1)
             best_train_score = round(abs(grid_search.best_score_), decimal_places)
             print("params tried:\n{}\n".format(rf_params), file=open(save_file, "a"))
 
@@ -100,7 +104,7 @@ def prediction(outcome, df,
 
     else:
         for model_name in model_names:
-            best_params_dict[model_name] = joblib.load(params_save + '{}.pkl'.format(model_name))
+            best_params_dict[model_name] = joblib.load(params_save + '{}_{}{}.pkl'.format(model_name, start_string, t))
 
 
     # Test Baseline Models
