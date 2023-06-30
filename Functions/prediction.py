@@ -4,11 +4,12 @@ import datetime as dt
 import joblib
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import confusion_matrix
+from sklearn.preprocessing import MultiLabelBinarizer
 
 from Functions.plotting import plot_confusion_matrix
 from fixed_params import decimal_places, scoring, verbose, random_state, nfolds, categorical_features
 from sklearn import metrics
-from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
+from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
 
 
@@ -16,14 +17,36 @@ def prediction(outcome, df,
                test_run, start_string, t,
                use_pre_trained, smote=True,
                do_GB_only=False,
-               do_testset_evaluation=True):
-
-    # remove person identifier
-    df.drop('ID_new', axis=1)
+               do_testset_evaluation=True,
+               multi_label = True):
 
     # redefine X and y
     X = df.drop(outcome, axis=1)
     y = df[outcome]
+
+    # transform X and y
+    if multi_label == True:
+        df.sort_values("ID_new", inplace=True)
+        # transform y
+        Y_i = df[['ID_new', outcome]].sort_values(by="ID_new")
+        y = Y_i.groupby('ID_new')[outcome].apply(list)
+
+        # select only unique X (join on grouped index)
+        X.sort_values(by="ID_new", inplace=True)
+        X = X.drop_duplicates(subset="ID_new")
+        X.set_index("ID_new", drop=True, inplace=True)
+        X_and_y = X.join(y)
+
+        # redefine X and y:
+        y = X_and_y[outcome]
+        mlb = MultiLabelBinarizer()
+        mlb.fit(y)
+        y = mlb.transform(y)
+        X = X_and_y.drop(outcome, axis=1)
+
+    else:
+        # remove person identifier
+        X.drop('ID_new', axis=1, inplace=True)
 
     # construct pipes
     categorical_features.remove(outcome)
@@ -38,17 +61,28 @@ def prediction(outcome, df,
     pipes = [pipe_log, pipe_enet, pipe_rf, pipe_gb]
     model_names = ["Log", "Enet", "RF", "GB"]
 
-    # split data into train and test splits
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
-                                                        test_size=0.2, shuffle=True, stratify=y)
+    # split data into train and test splits (can only stratify with single label)
+    if multi_label == True:
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
+                                                            test_size=0.2, shuffle=True)
+    else:
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
+                                                            test_size=0.2, shuffle=True, stratify=y)
 
     best_params_dict = {}
     params_save = "Results/Best_Params/"
     if use_pre_trained == False:
         if test_run == True:
-            from Params.test_grids import log_params, enet_params, rf_params, gb_params
+            if multi_label == True:
+                from Params.multi_label.test_grids import log_params, enet_params, rf_params, gb_params
+            else:
+                from Params.test_grids import log_params, enet_params, rf_params, gb_params
         else:
-            from Params.grids import log_params, enet_params, rf_params, gb_params
+            if multi_label == True:
+                from Params.multi_label.test_grids import log_params, enet_params, rf_params, gb_params
+            else:
+                from Params.grids import log_params, enet_params, rf_params, gb_params
+
 
         param_list = [log_params, enet_params, rf_params, gb_params]
 
@@ -69,14 +103,17 @@ def prediction(outcome, df,
             print("{}:".format(model_name),
                   file=open(save_file, "w"))
 
-            # preserve the distribution of data across outcome classes
-            stratified_kfold = StratifiedKFold(n_splits=nfolds,
-                                               shuffle=True,
-                                               random_state=random_state)
+            if multi_label == True:
+                kfold = KFold(n_splits=nfolds, random_state=random_state, shuffle=True)
+            else:
+                # preserve the distribution of data across outcome classes
+                kfold = StratifiedKFold(n_splits=nfolds,
+                                                   shuffle=True,
+                                                   random_state=random_state)
 
             grid_search = GridSearchCV(estimator=pipe,
                                        param_grid=params,
-                                       cv=stratified_kfold,
+                                       cv=kfold,
                                        scoring=scoring,
                                        verbose=verbose,
                                        refit=False,
@@ -184,3 +221,4 @@ def prediction(outcome, df,
     return optimised_pipes
 
 
+# todo: "Invalid parameter ml for estimator"

@@ -6,8 +6,8 @@ from Functions.prediction import prediction
 from Functions.preprocess import preprocess
 from fixed_params import outcome
 
-use_pre_trained = True
-test_run = False
+use_pre_trained = False
+test_run = True
 
 df = pd.read_csv("Data/X_and_y.csv", index_col=[0])
 

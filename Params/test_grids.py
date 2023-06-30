@@ -10,8 +10,7 @@ gb_params = {"classifier__min_samples_leaf": [5],
              "classifier__max_depth": [15],
              "classifier__random_state": [93]}
 
-log_params = {"classifier__C": [0.01],
-              "classifier__penalty": ['l1']}
+log_params = {}
 
-enet_params = {"classifier__C":[0.01],
+enet_params = {"classifier__alpha": [0.01],
               "classifier__l1_ratio": [0.5]}
