@@ -18,7 +18,7 @@ def prediction(outcome, df,
                use_pre_trained, smote=True,
                do_GB_only=False,
                do_testset_evaluation=True,
-               multi_label = True):
+               multi_label=True):
 
     # redefine X and y
     X = df.drop(outcome, axis=1)
@@ -54,9 +54,9 @@ def prediction(outcome, df,
     categorical_features_index = X[categorical_features].columns
 
     if smote == True:
-        pipe_log, pipe_enet, pipe_rf, pipe_gb = construct_smote_pipelines(numeric_features_index, categorical_features_index)
+        pipe_log, pipe_enet, pipe_rf, pipe_gb = construct_smote_pipelines(numeric_features_index, categorical_features_index, multi_label)
     else:
-        pipe_log, pipe_enet, pipe_rf, pipe_gb = construct_pipelines(numeric_features_index, categorical_features_index)
+        pipe_log, pipe_enet, pipe_rf, pipe_gb = construct_pipelines(numeric_features_index, categorical_features_index, multi_label)
 
     pipes = [pipe_log, pipe_enet, pipe_rf, pipe_gb]
     model_names = ["Log", "Enet", "RF", "GB"]

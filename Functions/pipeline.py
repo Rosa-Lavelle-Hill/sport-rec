@@ -16,14 +16,14 @@ from fixed_params import random_state, decimal_places, imputer_max_iter, categor
 from imblearn.pipeline import Pipeline as imbpipeline
 
 
-def construct_pipelines(numeric_features_index, categorical_features_index):
+def construct_pipelines(numeric_features_index, categorical_features_index, multi_label):
     # define stages of pipeline
     scaler = StandardScaler()
     random_forest = RandomForestClassifier()
     oh_encoder = OneHotEncoder(handle_unknown='error', drop="if_binary")
     gradient_boosting = GradientBoostingClassifier(validation_fraction=0.1, warm_start=True)
     enet = LogisticRegression(penalty="elasticnet", random_state=random_state, solver="saga")
-    log = LogisticRegression(random_state=random_state, solver="newton-cg’")
+    log = LogisticRegression(random_state=random_state, solver="newton-cg")
 
     # Bayesian ridge is quicker/simpler than RF:
     imp_iter_num = IterativeImputer(missing_values=np.nan, max_iter=imputer_max_iter,
@@ -69,30 +69,44 @@ def construct_pipelines(numeric_features_index, categorical_features_index):
 
     # full pipelines:
 
-    pipe_log = Pipeline([
-        ("preprocessor", preprocessor),
-        ('classifier', log)
-    ])
+    if multi_label == True:
 
-    pipe_enet = Pipeline([
-        ("preprocessor", preprocessor),
-        ('classifier', enet)
-    ])
+        pipe_log = imbpipeline(steps=[['preprocessor', preprocessor],
+                                      ['ml', MultiOutputClassifier(estimator=log)]])
 
-    pipe_rf = Pipeline([
-        ("preprocessor", preprocessor),
-        ('classifier', random_forest)
-    ])
+        pipe_enet = imbpipeline(steps=[['preprocessor', preprocessor],
+                                       ['ml', MultiOutputClassifier(estimator=enet)]])
 
-    pipe_gb = Pipeline([
-        ("preprocessor", preprocessor_GB),
-        ('classifier', gradient_boosting)
-    ])
+        pipe_rf = imbpipeline(steps=[['preprocessor', preprocessor],
+                                     ['ml', MultiOutputClassifier(estimator=random_forest)]])
+
+        pipe_gb = imbpipeline(steps=[['preprocessor', preprocessor],
+                                     ['ml', MultiOutputClassifier(estimator=gradient_boosting)]])
+    else:
+        pipe_log = Pipeline([
+            ("preprocessor", preprocessor),
+            ('classifier', log)
+        ])
+
+        pipe_enet = Pipeline([
+            ("preprocessor", preprocessor),
+            ('classifier', enet)
+        ])
+
+        pipe_rf = Pipeline([
+            ("preprocessor", preprocessor),
+            ('classifier', random_forest)
+        ])
+
+        pipe_gb = Pipeline([
+            ("preprocessor", preprocessor_GB),
+            ('classifier', gradient_boosting)
+        ])
     return pipe_log, pipe_enet, pipe_rf, pipe_gb
 
 
 
-def construct_smote_pipelines(numeric_features_index, categorical_features_index, multi_label=True):
+def construct_smote_pipelines(numeric_features_index, categorical_features_index, multi_label):
     # define stages of pipeline
     scaler = StandardScaler()
     oh_encoder = OneHotEncoder(handle_unknown='error', drop="if_binary")

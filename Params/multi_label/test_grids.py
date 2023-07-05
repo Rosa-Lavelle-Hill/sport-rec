@@ -12,5 +12,5 @@ gb_params = {"ml__estimator__min_samples_leaf": [5],
 
 log_params = {}
 
-enet_params = {"ml__estimator__alpha": [0.01],
+enet_params = {"ml__estimator__C": [0.01],
                "ml__estimator__l1_ratio": [0.5]}

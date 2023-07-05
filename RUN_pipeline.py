@@ -27,8 +27,8 @@ else:
     t= ""
 
 optimised_pipes = prediction(outcome=outcome, df=df, test_run=test_run,
-                             use_pre_trained=use_pre_trained, smote=True,
-                             start_string=start_string, t=t)
+                             use_pre_trained=use_pre_trained, smote=False,
+                             start_string=start_string, t=t, multi_label=True)
 
 # (3) plot prediction results
 results_df = pd.read_csv("Results/Prediction/all_test_scores.csv")
