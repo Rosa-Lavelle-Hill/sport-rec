@@ -329,3 +329,81 @@ def plot_confusion_matrix(cm,
     plt.clf()
     plt.cla()
     plt.close()
+    return
+
+
+def run_plots(results_df, start_string, t):
+    results_df.rename(columns={"Unnamed: 0": "Model"}, inplace=True)
+    save_path = "Results/Prediction/Plots/"
+    save_name = "all_prediction_results"
+    x_ticks = ["Dummy Most Frequent", "Dummy Random",
+               "Dummy Stratified", "Logistic Regression",
+               "Elastic Net", "Random Forest"]
+
+    f1_weight = results_df[results_df.Model == "F1_weighted"]
+    log_loss = results_df[results_df.Model == "Log_loss"]
+
+    save_name = "all_predict_f1weight_{}{}".format(start_string, t)
+    plot_results(y="F1_weighted", data=f1_weight, colour='Model',
+                 save_path=save_path, save_name=save_name,
+                 xlab="Prediction Models", ylab="F1 weighted",
+                 title="Comparison of Predictions",
+                 x_ticks=x_ticks
+                 )
+
+    save_name = "all_predict_logloss_{}{}".format(start_string, t)
+    plot_results(y="Log_loss", data=log_loss, colour='Model',
+                 save_path=save_path, save_name=save_name,
+                 xlab="Prediction Models", ylab="Log loss",
+                 title="Comparison of Predictions",
+                 x_ticks=x_ticks
+                 )
+    return
+
+def run_plots_multilabel(results_df, start_string, t):
+    results_df.rename(columns={"Unnamed: 0": "Model"}, inplace=True)
+    save_path = "Results/Prediction/Plots/"
+    save_name = "all_prediction_results"
+    x_ticks = ["Dummy Most Frequent", "Dummy Random",
+               "Dummy Stratified", "Logistic Regression",
+               "Elastic Net", "Random Forest"]
+
+    micro_precision = results_df[results_df.Model == "micro_precision"]
+    micro_f1 = results_df[results_df.Model == "micro_f1"]
+    weighted_precision = results_df[results_df.Model == "weighted_precision"]
+    weighted_f1 = results_df[results_df.Model == "weighted_f1"]
+
+    save_name = "all_predict_micro_precision_{}{}".format(start_string, t)
+    plot_results(y="micro_precision", data=micro_precision, colour='Model',
+                 save_path=save_path, save_name=save_name,
+                 xlab="Prediction Models", ylab="Micro Precision",
+                 title="Comparison of Predictions",
+                 x_ticks=x_ticks
+                 )
+
+    save_name = "all_predict_micro_f1_{}{}".format(start_string, t)
+    plot_results(y="micro_f1", data=micro_f1, colour='Model',
+                 save_path=save_path, save_name=save_name,
+                 xlab="Prediction Models", ylab="Micro F1",
+                 title="Comparison of Predictions",
+                 x_ticks=x_ticks
+                 )
+
+    save_name = "all_predict_weighted_precision_{}{}".format(start_string, t)
+    plot_results(y="weighted_precision", data=weighted_precision, colour='Model',
+                 save_path=save_path, save_name=save_name,
+                 xlab="Prediction Models", ylab="Weighted Precision",
+                 title="Comparison of Predictions",
+                 x_ticks=x_ticks
+                 )
+
+    save_name = "all_predict_weighted_f1_{}{}".format(start_string, t)
+    plot_results(y="weighted_f1", data=weighted_f1, colour='Model',
+                 save_path=save_path, save_name=save_name,
+                 xlab="Prediction Models", ylab="Weighted F1",
+                 title="Comparison of Predictions",
+                 x_ticks=x_ticks
+                 )
+    return
+
+# todo: plot all 14 CMs

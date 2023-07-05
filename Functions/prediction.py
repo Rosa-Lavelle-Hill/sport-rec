@@ -3,11 +3,11 @@ import pandas as pd
 import datetime as dt
 import joblib
 from sklearn.dummy import DummyClassifier
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, classification_report, make_scorer
 from sklearn.preprocessing import MultiLabelBinarizer
-
+from sklearn.metrics import precision_score
 from Functions.plotting import plot_confusion_matrix
-from fixed_params import decimal_places, scoring, verbose, random_state, nfolds, categorical_features
+from fixed_params import decimal_places, single_label_scoring, verbose, random_state, nfolds, categorical_features
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
@@ -40,6 +40,7 @@ def prediction(outcome, df,
         # redefine X and y:
         y = X_and_y[outcome]
         mlb = MultiLabelBinarizer()
+        # todo: should be done on train and test set separately?****
         mlb.fit(y)
         y = mlb.transform(y)
         X = X_and_y.drop(outcome, axis=1)
@@ -105,8 +106,11 @@ def prediction(outcome, df,
 
             if multi_label == True:
                 kfold = KFold(n_splits=nfolds, random_state=random_state, shuffle=True)
+                scoring = make_scorer(precision_score, average="weighted", zero_division=0)
+            #     todo: ^ check: when no labels predicted, set to 0?
             else:
                 # preserve the distribution of data across outcome classes
+                scoring = single_label_scoring
                 kfold = StratifiedKFold(n_splits=nfolds,
                                                    shuffle=True,
                                                    random_state=random_state)
@@ -147,17 +151,31 @@ def prediction(outcome, df,
     # Test Baseline Models
     test_scores = {}
     print("Evaluating performance on test set of baseline models")
-    pipe_dum_mf, pipe_dum_random, pipe_dum_strat = construct_dummy_pipelines(numeric_features_index, categorical_features_index)
+
+    pipe_dum_mf, pipe_dum_random, pipe_dum_strat = construct_dummy_pipelines(numeric_features_index, categorical_features_index, multi_label)
 
     for dum_model, dum_name in zip([pipe_dum_mf, pipe_dum_random, pipe_dum_strat], ["Dummy_MF", "Dummy_Random", "Dummy_Stratified"]):
         dum_model.fit(X_train, y_train)
         y_pred = dum_model.predict(X_test)
         y_prob = dum_model.predict_proba(X_test)
         test_score_f1_weighted = round(metrics.f1_score(y_test, y_pred, average="weighted"), decimal_places)
-        test_log_loss = round(metrics.log_loss(y_test, y_prob), decimal_places)
+        if multi_label == False:
+            test_log_loss = round(metrics.log_loss(y_test, y_prob), decimal_places)
 
-        test_scores[dum_name] = {"F1_weighted": test_score_f1_weighted,
+            test_scores[dum_name] = {"F1_weighted": test_score_f1_weighted,
                                 "Log_loss": test_log_loss}
+        else:
+            test_scores[dum_name] = {"F1_weighted": test_score_f1_weighted}
+            dummy_results_dict = classification_report(
+                y_test,
+                y_pred,
+                output_dict=True
+            )
+            test_scores[dum_name] = {"micro_precision": round(dummy_results_dict['micro avg']['precision'], 2),
+                                     "micro_f1": round(dummy_results_dict['micro avg']['f1-score'], 2),
+                                     "weighted_precision": round(dummy_results_dict['weighted avg']['precision'], 2),
+                                     "weighted_f1": round(dummy_results_dict['weighted avg']['f1-score'], 2)}
+
 
     # Test Model
     optimised_pipes = {}
@@ -191,27 +209,41 @@ def prediction(outcome, df,
 
             # evaluate/score best out of sample
             test_score_f1_weighted = round(metrics.f1_score(y_test, y_pred, average="weighted"), decimal_places)
-            test_log_loss = round(metrics.log_loss(y_test, y_prob), decimal_places)
-            test_cm = metrics.multilabel_confusion_matrix(y_test, y_pred)
-            cm = confusion_matrix(y_test, y_pred)
+            if multi_label == False:
+                test_log_loss = round(metrics.log_loss(y_test, y_prob), decimal_places)
+                test_cm = metrics.multilabel_confusion_matrix(y_test, y_pred)
+                cm = confusion_matrix(y_test, y_pred)
+                print("Best {} model performance on test data;"
+                      "F1_weighted: {}, log loss: {}, CM: \n {}".format(model_name, test_score_f1_weighted,
+                                                                        test_log_loss, test_cm),
+                      file=open(save_file, "a"))
 
-            print("Best {} model performance on test data;"
-                  "F1_weighted: {}, log loss: {}, CM: \n {}".format(model_name, test_score_f1_weighted,
-                                                                    test_log_loss, test_cm),
-                  file=open(save_file, "a"))
+                # plot confusion_matrix
+                cm_save_path = "Results/Prediction/Confusion_Matrix/"
+                plot_confusion_matrix(cm,
+                                      target_names = range(1, 15),
+                                      title='Confusion matrix',
+                                      cmap=None,
+                                      normalize=False,
+                                      save_name="cm_{}_{}{}".format(model_name, start_string, t),
+                                      save_path=cm_save_path)
 
-            # plot confusion_matrix
-            cm_save_path = "Results/Prediction/Confusion_Matrix/"
-            plot_confusion_matrix(cm,
-                                  target_names = range(1, 15),
-                                  title='Confusion matrix',
-                                  cmap=None,
-                                  normalize=False,
-                                  save_name="cm_{}_{}{}".format(model_name, start_string, t),
-                                  save_path=cm_save_path)
+                test_scores[model_name] = {"F1_weighted": test_score_f1_weighted,
+                                           "Log_loss": test_log_loss}
+            if multi_label == True:
+                results_dict = classification_report(
+                    y_test,
+                    y_pred,
+                    output_dict=True
+                )
+                print("Best {} model performance on test data:\n".format(model_name) +
+                      str(classification_report(y_test, y_pred, output_dict=False)), file=open(save_file, "a"))
 
-            test_scores[model_name] = {"F1_weighted": test_score_f1_weighted,
-                                       "Log_loss": test_log_loss}
+                test_scores[model_name] = {"F1_weighted": test_score_f1_weighted}
+                test_scores[model_name] = {"micro_precision": round(results_dict['micro avg']['precision'],2),
+                                         "micro_f1": round(results_dict['micro avg']['f1-score'], 2),
+                                         "weighted_precision": round(results_dict['weighted avg']['precision'], 2),
+                                         "weighted_f1": round(results_dict['weighted avg']['f1-score'], 2)}
 
     if do_testset_evaluation == True:
         test_scores = pd.DataFrame.from_dict(test_scores)

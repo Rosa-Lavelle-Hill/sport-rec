@@ -1,9 +1,10 @@
 outcome = "sport_kat_b"
 decimal_places = 2
-scoring = "f1_weighted"
+single_label_scoring = "f1_weighted"
+multi_label = True
 verbose = 2
 random_state = 93
-nfolds = 10
+nfolds = 3
 categorical_features = ['sport_kat_b', 'edu', 'sex']
 imputer_max_iter = 5
 goal_vars = ['Zind_fitheal', 'Zind_figap', 'Zind_disstre', 'Zind_actenj', 'Zind_compperf', 'Zind_aes', 'Zind_con']
