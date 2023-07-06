@@ -3,11 +3,13 @@ import pandas as pd
 import datetime as dt
 import joblib
 from sklearn.dummy import DummyClassifier
-from sklearn.metrics import confusion_matrix, classification_report, make_scorer
+from sklearn.metrics import confusion_matrix, classification_report, make_scorer, multilabel_confusion_matrix
 from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.metrics import precision_score
+from sklearn.metrics import precision_score, f1_score
+
+from Functions.ml_smote import get_minority_instance, MLSMOTE
 from Functions.plotting import plot_confusion_matrix
-from fixed_params import decimal_places, single_label_scoring, verbose, random_state, nfolds, categorical_features
+from fixed_params import decimal_places, single_label_scoring, verbose, random_state, nfolds, categorical_features, ml_smote
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
@@ -50,7 +52,6 @@ def prediction(outcome, df,
         X.drop('ID_new', axis=1, inplace=True)
 
     # construct pipes
-    categorical_features.remove(outcome)
     numeric_features_index = X.drop(categorical_features, inplace=False, axis=1).columns
     categorical_features_index = X[categorical_features].columns
 
@@ -66,6 +67,10 @@ def prediction(outcome, df,
     if multi_label == True:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
                                                             test_size=0.2, shuffle=True)
+        if ml_smote == True:
+            X_sub, y_sub = get_minority_instance(X_train, pd.DataFrame(y_train))
+            X_train_n, y_train_n = MLSMOTE(X_sub, y_sub, 100)
+
     else:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
                                                             test_size=0.2, shuffle=True, stratify=y)
@@ -106,7 +111,8 @@ def prediction(outcome, df,
 
             if multi_label == True:
                 kfold = KFold(n_splits=nfolds, random_state=random_state, shuffle=True)
-                scoring = make_scorer(precision_score, average="weighted", zero_division=0)
+                # scoring = make_scorer(precision_score, average="weighted", zero_division=0)
+                scoring = make_scorer(f1_score, average="micro", zero_division=0)
             #     todo: ^ check: when no labels predicted, set to 0?
             else:
                 # preserve the distribution of data across outcome classes
@@ -133,7 +139,7 @@ def prediction(outcome, df,
             print("Training done. Time taken: {}".format(training_time), file=open(save_file, "a"))
 
             best_params = grid_search.best_params_
-            joblib.dump(best_params, params_save + '{}_{}{}.pkl'.format(model_name, start_string, t), compress=1)
+            joblib.dump(best_params, params_save + '{}_{}{}{}.pkl'.format(outcome, model_name, start_string, t), compress=1)
             best_train_score = round(abs(grid_search.best_score_), decimal_places)
             print("params tried:\n{}\n".format(rf_params), file=open(save_file, "a"))
 
@@ -145,7 +151,7 @@ def prediction(outcome, df,
 
     else:
         for model_name in model_names:
-            best_params_dict[model_name] = joblib.load(params_save + '{}_{}{}.pkl'.format(model_name, start_string, t))
+            best_params_dict[model_name] = joblib.load(params_save + '{}_{}{}{}.pkl'.format(model_name, outcome, start_string, t))
 
 
     # Test Baseline Models
@@ -175,7 +181,6 @@ def prediction(outcome, df,
                                      "micro_f1": round(dummy_results_dict['micro avg']['f1-score'], 2),
                                      "weighted_precision": round(dummy_results_dict['weighted avg']['precision'], 2),
                                      "weighted_f1": round(dummy_results_dict['weighted avg']['f1-score'], 2)}
-
 
     # Test Model
     optimised_pipes = {}
@@ -225,7 +230,7 @@ def prediction(outcome, df,
                                       title='Confusion matrix',
                                       cmap=None,
                                       normalize=False,
-                                      save_name="cm_{}_{}{}".format(model_name, start_string, t),
+                                      save_name="cm_{}_{}{}{}".format(model_name, outcome, start_string, t),
                                       save_path=cm_save_path)
 
                 test_scores[model_name] = {"F1_weighted": test_score_f1_weighted,
@@ -239,6 +244,12 @@ def prediction(outcome, df,
                 print("Best {} model performance on test data:\n".format(model_name) +
                       str(classification_report(y_test, y_pred, output_dict=False)), file=open(save_file, "a"))
 
+                m_cm = multilabel_confusion_matrix(y_test, y_pred)
+                print("Confusion matrices:\n".format(model_name) +
+                      "[[TN, FP] \n" +
+                       "[FN, TP]] \n \n" +
+                      str(m_cm), file=open(save_file, "a"))
+
                 test_scores[model_name] = {"F1_weighted": test_score_f1_weighted}
                 test_scores[model_name] = {"micro_precision": round(results_dict['micro avg']['precision'],2),
                                          "micro_f1": round(results_dict['micro avg']['f1-score'], 2),
@@ -248,7 +259,7 @@ def prediction(outcome, df,
     if do_testset_evaluation == True:
         test_scores = pd.DataFrame.from_dict(test_scores)
         test_scores.to_csv(
-            "Results/Prediction/all_test_scores_{}{}.csv".format(start_string, t))
+            "Results/Prediction/all_test_scores_{}{}{}.csv".format(outcome, start_string, t))
 
     return optimised_pipes
 

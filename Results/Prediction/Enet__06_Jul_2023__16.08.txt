@@ -1,0 +1,60 @@
+Enet:
+Training done. Time taken: 0:00:02.270778
+params tried:
+{'ml__estimator__max_depth': [5], 'ml__estimator__max_features': [0.3], 'ml__estimator__min_samples_split': [2], 'ml__estimator__n_estimators': [50], 'ml__estimator__random_state': [93]}
+
+Best training make_scorer(f1_score, average=micro, zero_division=0) score: 0.62. Best model params:
+{'ml__estimator__C': 0.01, 'ml__estimator__l1_ratio': 0.5}.
+
+Best Enet model performance on test data:
+              precision    recall  f1-score   support
+
+           0       0.68      0.91      0.78      1718
+           1       0.57      0.68      0.62      1325
+           2       0.00      0.00      0.00        31
+           3       0.00      0.00      0.00       198
+           4       0.00      0.00      0.00       197
+           5       0.00      0.00      0.00       249
+           6       0.68      0.35      0.46       605
+           7       0.00      0.00      0.00        73
+           8       0.00      0.00      0.00        62
+           9       0.00      0.00      0.00         8
+
+   micro avg       0.64      0.60      0.62      4466
+   macro avg       0.19      0.19      0.19      4466
+weighted avg       0.52      0.60      0.55      4466
+ samples avg       0.63      0.64      0.60      4466
+
+Confusion matrices:
+[[TN, FP] 
+[FN, TP]] 
+ 
+[[[ 248  735]
+  [ 151 1567]]
+
+ [[ 690  686]
+  [ 420  905]]
+
+ [[2670    0]
+  [  31    0]]
+
+ [[2503    0]
+  [ 198    0]]
+
+ [[2504    0]
+  [ 197    0]]
+
+ [[2452    0]
+  [ 249    0]]
+
+ [[1998   98]
+  [ 393  212]]
+
+ [[2628    0]
+  [  73    0]]
+
+ [[2639    0]
+  [  62    0]]
+
+ [[2693    0]
+  [   8    0]]]

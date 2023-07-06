@@ -1,0 +1,8 @@
+Log:
+Training done. Time taken: 0:00:05.319250
+params tried:
+{'ml__estimator__max_depth': [5], 'ml__estimator__max_features': [0.3], 'ml__estimator__min_samples_split': [2], 'ml__estimator__n_estimators': [50], 'ml__estimator__random_state': [93]}
+
+Best training make_scorer(precision_score, average=weighted, zero_division=0) score: 0.38. Best model params:
+{}.
+

@@ -7,9 +7,9 @@ from Functions.preprocess import preprocess
 from fixed_params import outcome, multi_label
 
 use_pre_trained = False
-test_run = True
+test_run = False
 
-df = pd.read_csv("Data/X_and_y.csv", index_col=[0])
+df = pd.read_csv("Data/X_and_y_{}.csv".format(outcome), index_col=[0])
 
 # (1) preprocess
 
@@ -31,7 +31,7 @@ optimised_pipes = prediction(outcome=outcome, df=df, test_run=test_run,
                              start_string=start_string, t=t, multi_label=multi_label)
 
 # (3) plot prediction results
-results_df = pd.read_csv("Results/Prediction/all_test_scores_{}{}.csv".format(start_string, t))
+results_df = pd.read_csv("Results/Prediction/all_test_scores_{}{}{}.csv".format(outcome, start_string, t))
 if multi_label == False:
     run_plots(results_df, start_string, t)
 else:

@@ -4,10 +4,12 @@ import colorcet as cc
 import shap
 import pandas as pd
 import numpy as np
+from matplotlib import colors
+from sklearn.cluster import KMeans
 from sklearn.metrics import precision_recall_curve, roc_auc_score, roc_curve
 
 def plot_count(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs,
-               title="", leg_title='Sport Category (B)'):
+               title=""):
     n = data[x].nunique() + 1
     # pal = sns.color_palette(cc.glasbey, n_colors=14)
 
@@ -18,7 +20,7 @@ def plot_count(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs,
     plt.xlabel(xlab)
     plt.title(title)
     plt.subplots_adjust(right=0.3)
-    plt.legend(bbox_to_anchor=(1, 1), title=leg_title, loc='upper left',
+    plt.legend(bbox_to_anchor=(1, 1), title=xlab, loc='upper left',
                labels=leg_labs, fontsize=9)
     plt.tight_layout()
     plt.savefig(save_path + save_name + ".png")
@@ -405,5 +407,79 @@ def run_plots_multilabel(results_df, start_string, t):
                  x_ticks=x_ticks
                  )
     return
+
+
+def plot_clust(kmeans, y, save_path, save_name):
+    plt.figure(figsize=(7, 5))
+    plt.scatter(kmeans[:, 0], kmeans[:, 1],
+                c=y, edgecolor='none', alpha=0.3,
+                cmap=plt.cm.get_cmap("tab20", 10))
+    plt.xlabel('Cluster 1')
+    plt.ylabel('Cluster 2')
+    # plt.colorbar()
+    plt.tight_layout()
+    plt.savefig(save_path + save_name + ".png")
+    plt.clf()
+    plt.cla()
+    plt.close()
+    return
+
+
+def plot_clust_col(kmeans, labs, n_clust, save_path, save_name):
+    plt.figure(figsize=(7, 5))
+    plt.scatter(kmeans[:, 0], kmeans[:, 1],
+                c=labs.astype(float), edgecolor='none', alpha=0.5,
+                cmap=plt.cm.get_cmap("tab20", n_clust))
+    plt.xlabel('Cluster 1')
+    plt.ylabel('Cluster 2')
+    # ticks = list(range(1, n_clust + 1))
+    # plt.colorbar()
+    plt.tight_layout()
+    plt.savefig(save_path + save_name + ".png")
+    plt.clf()
+    plt.cla()
+    plt.close()
+    return
+
+
+def find_K(X, save_path, save_name):
+    sse = {}
+    for k in range(1, 24):
+        # ^ as 24 categories in kat_sport_a
+        kmeans = KMeans(n_clusters=k, max_iter=1000).fit(X)
+        X["clusters"] = kmeans.labels_
+        sse[k] = kmeans.inertia_
+    plt.figure()
+    plt.plot(list(sse.keys()), list(sse.values()))
+    plt.xlabel("Number of cluster")
+    plt.ylabel("SSE")
+    plt.tight_layout()
+    plt.savefig(save_path + save_name + ".png")
+    plt.clf()
+    plt.cla()
+    plt.close()
+    return
+
+
+
+def Plot_NMF_all(H, save_path, save_name):
+    bounds = np.arange(start=0, stop=1.05, step=0.05)
+    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    ticks = list(range(0, len(H.columns)))
+    fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+    img = ax.imshow(H, aspect='auto', interpolation='none', norm=norm)
+    x_label_list = list(H.columns.values)
+    ax.set_xticks(ticks)
+    ax.set_xticklabels(x_label_list)
+    fig.colorbar(img)
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    plt.savefig(save_path + save_name + ".png")
+    plt.clf()
+    plt.cla()
+    plt.close()
+    return
+
+
 
 # todo: plot all 14 CMs

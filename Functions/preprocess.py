@@ -5,6 +5,10 @@ from Functions.plotting import plot_hist, plot_count
 
 
 def preprocess(df, outcome):
+    if outcome == "sport_kat_b":
+        x_lab = "Sport Category (B)"
+    if outcome == "sport_kat_c":
+        x_lab = "Sport Category (C)"
 
     # drop rows were dv Missing:
     print("original data size")
@@ -60,17 +64,18 @@ def preprocess(df, outcome):
     print(df.shape)
 
     # plot freq of categories after data dropped
-    very_short_names = pd.read_csv("Data/Meta/v_short_outcome_names.csv", index_col=[0])
+    very_short_names = pd.read_csv("Data/Meta/v_short_outcome_names_{}.csv".format(outcome), index_col=[0])
     very_short_names = list(very_short_names['0'])
-    short_names = pd.read_csv("Data/Meta/short_outcome_names.csv", index_col=[0])
+    short_names = pd.read_csv("Data/Meta/short_outcome_names_{}.csv".format(outcome), index_col=[0])
     short_names = list(short_names['0'])
     plot_count(data=df, x=outcome, hue=outcome, xlabs=very_short_names,
                save_path="Outputs/Descriptives/Modelling_df/", save_name="y_hist",
-               xlab="Sport Category (B)", leg_labs=short_names, title="Distribution of outcome variable")
+               xlab=x_lab, leg_labs=short_names, title="Distribution of outcome variable")
 
     # recode cat vars:
     for var in categorical_features:
         df[var] = pd.Categorical(df[var])
+    df[outcome] = pd.Categorical(df[outcome])
 
     # look at correlations:
     df_num = df.drop(categorical_features, axis=1)
@@ -78,7 +83,7 @@ def preprocess(df, outcome):
     check_cors(df_num, save_path=save_path, save_name="correlations.csv")
 
     # save preprocessed data:
-    df.to_csv("Data/Preprocessed/preprocessed.csv")
+    df.to_csv("Data/Preprocessed/preprocessed_{}.csv".format(outcome))
 
     # count unique individuals:
     unique_ids = df['ID_new'].nunique()

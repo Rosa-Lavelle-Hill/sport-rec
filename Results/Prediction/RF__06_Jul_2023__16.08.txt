@@ -1,0 +1,60 @@
+RF:
+Training done. Time taken: 0:00:07.900790
+params tried:
+{'ml__estimator__max_depth': [5], 'ml__estimator__max_features': [0.3], 'ml__estimator__min_samples_split': [2], 'ml__estimator__n_estimators': [50], 'ml__estimator__random_state': [93]}
+
+Best training make_scorer(f1_score, average=micro, zero_division=0) score: 0.62. Best model params:
+{'ml__estimator__max_depth': 5, 'ml__estimator__max_features': 0.3, 'ml__estimator__min_samples_split': 2, 'ml__estimator__n_estimators': 50, 'ml__estimator__random_state': 93}.
+
+Best RF model performance on test data:
+              precision    recall  f1-score   support
+
+           0       0.69      0.92      0.79      1718
+           1       0.57      0.69      0.62      1325
+           2       0.00      0.00      0.00        31
+           3       0.00      0.00      0.00       198
+           4       0.00      0.00      0.00       197
+           5       0.00      0.00      0.00       249
+           6       0.71      0.31      0.43       605
+           7       0.00      0.00      0.00        73
+           8       0.00      0.00      0.00        62
+           9       0.00      0.00      0.00         8
+
+   micro avg       0.64      0.60      0.62      4466
+   macro avg       0.20      0.19      0.18      4466
+weighted avg       0.53      0.60      0.54      4466
+ samples avg       0.62      0.64      0.59      4466
+
+Confusion matrices:
+[[TN, FP] 
+[FN, TP]] 
+ 
+[[[ 269  714]
+  [ 145 1573]]
+
+ [[ 689  687]
+  [ 416  909]]
+
+ [[2670    0]
+  [  31    0]]
+
+ [[2503    0]
+  [ 198    0]]
+
+ [[2504    0]
+  [ 197    0]]
+
+ [[2452    0]
+  [ 249    0]]
+
+ [[2020   76]
+  [ 420  185]]
+
+ [[2628    0]
+  [  73    0]]
+
+ [[2639    0]
+  [  62    0]]
+
+ [[2693    0]
+  [   8    0]]]
