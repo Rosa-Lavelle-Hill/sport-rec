@@ -85,7 +85,7 @@ def prediction(outcome, df,
                 from Params.test_grids import log_params, enet_params, rf_params, gb_params
         else:
             if multi_label == True:
-                from Params.multi_label.test_grids import log_params, enet_params, rf_params, gb_params
+                from Params.multi_label.grids import log_params, enet_params, rf_params, gb_params
             else:
                 from Params.grids import log_params, enet_params, rf_params, gb_params
 
