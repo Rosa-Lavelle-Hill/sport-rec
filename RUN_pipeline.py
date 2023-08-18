@@ -4,7 +4,7 @@ import datetime as dt
 from Functions.plotting import run_plots, run_plots_multilabel
 from Functions.prediction import prediction
 from Functions.preprocess import preprocess
-from fixed_params import outcome, multi_label
+from fixed_params import outcome, multi_label, smote
 
 use_pre_trained = False
 test_run = False
@@ -27,7 +27,7 @@ else:
     t= ""
 
 optimised_pipes = prediction(outcome=outcome, df=df, test_run=test_run,
-                             use_pre_trained=use_pre_trained, smote=False,
+                             use_pre_trained=use_pre_trained, smote=smote,
                              start_string=start_string, t=t, multi_label=multi_label)
 
 # (3) plot prediction results

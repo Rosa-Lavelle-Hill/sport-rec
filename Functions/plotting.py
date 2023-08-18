@@ -16,7 +16,7 @@ def plot_count(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs,
     plt.figure(figsize=(7.8, 4))
     sns.histplot(data=data, x=x, hue=hue, stat="count", discrete=True, bins=14,
                  legend=False)
-    plt.xticks(ticks= range(1, n), labels=xlabs, rotation=60, size=7)
+    plt.xticks(ticks=range(1, n), labels=xlabs, rotation=60, size=7)
     plt.xlabel(xlab)
     plt.title(title)
     plt.subplots_adjust(right=0.3)

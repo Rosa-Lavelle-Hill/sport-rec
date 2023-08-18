@@ -14,7 +14,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import OneHotEncoder
 from fixed_params import random_state, decimal_places, imputer_max_iter, categorical_features, outcome
 from imblearn.pipeline import Pipeline as imbpipeline
-
+from multi_imbalance.resampling.mdo import MDO
+from imblearn.over_sampling import SMOTENC
 
 def construct_pipelines(numeric_features_index, categorical_features_index, multi_label):
     # define stages of pipeline
@@ -158,27 +159,41 @@ def construct_smote_pipelines(numeric_features_index, categorical_features_index
     )
 
     # full pipelines:
-    smote = SMOTE(random_state=random_state)
     if multi_label == True:
 
-        pipe_log = imbpipeline(steps=[['preprocessor', preprocessor],
-                                      ['smote', smote],
-                                      ['ml', MultiOutputClassifier(estimator=log)]])
+        # as multi-label and smote can't be performed in a pipeline together,
+        # smote is done before the pipeline is applied
 
-        pipe_enet = imbpipeline(steps=[['preprocessor', preprocessor],
-                                       ['smote', smote],
-                                       ['ml', MultiOutputClassifier(estimator=enet)]])
+        pipe_log = Pipeline(steps=[('preprocessor', preprocessor),
+                                   ('ml', MultiOutputClassifier(estimator=log))])
 
-        pipe_rf = imbpipeline(steps=[['preprocessor', preprocessor],
-                                     ['smote', smote],
-                                     ['ml', MultiOutputClassifier(estimator=random_forest)]])
+        pipe_enet = Pipeline(steps=[('preprocessor', preprocessor),
+                                    ('ml', MultiOutputClassifier(estimator=enet))])
 
-        pipe_gb = imbpipeline(steps=[['preprocessor', preprocessor],
-                                     ['smote', smote],
-                                     ['ml', MultiOutputClassifier(estimator=gradient_boosting)]])
+        pipe_rf = Pipeline(steps=[('preprocessor', preprocessor),
+                                  ('ml', MultiOutputClassifier(estimator=random_forest))])
+
+        pipe_gb = Pipeline(steps=[('preprocessor', preprocessor),
+                                     ('ml', MultiOutputClassifier(estimator=gradient_boosting))])
+
+        # pipe_log = imbpipeline(steps=[['preprocessor', preprocessor],
+        #                               ['mdo', mdo],
+        #                               ['ml', MultiOutputClassifier(estimator=log)]])
+        #
+        # pipe_enet = imbpipeline(steps=[['preprocessor', preprocessor],
+        #                                ['mdo', mdo],
+        #                                ['ml', MultiOutputClassifier(estimator=enet)]])
+        #
+        # pipe_rf = imbpipeline(steps=[['preprocessor', preprocessor],
+        #                              ['mdo', mdo],
+        #                              ['ml', MultiOutputClassifier(estimator=random_forest)]])
+        #
+        # pipe_gb = imbpipeline(steps=[['preprocessor', preprocessor],
+        #                              ['mdo', mdo],
+        #                              ['ml', MultiOutputClassifier(estimator=gradient_boosting)]])
 
     else:
-
+        smote = SMOTE(random_state=random_state)
         pipe_log = imbpipeline(steps=[['preprocessor', preprocessor],
                                 ['smote', smote],
                                 ['classifier', log]])

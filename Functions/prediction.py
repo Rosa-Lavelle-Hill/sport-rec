@@ -2,14 +2,14 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import joblib
+from imblearn.over_sampling import SMOTENC
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import confusion_matrix, classification_report, make_scorer, multilabel_confusion_matrix
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import precision_score, f1_score
 
-from Functions.ml_smote import get_minority_instance, MLSMOTE
 from Functions.plotting import plot_confusion_matrix
-from fixed_params import decimal_places, single_label_scoring, verbose, random_state, nfolds, categorical_features, ml_smote
+from fixed_params import decimal_places, single_label_scoring, verbose, random_state, nfolds, categorical_features
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
@@ -17,10 +17,13 @@ from Functions.pipeline import construct_pipelines, construct_smote_pipelines, c
 
 def prediction(outcome, df,
                test_run, start_string, t,
-               use_pre_trained, smote=True,
+               use_pre_trained,
+               smote,
+               multi_label,
+               do_Enet=False,
                do_GB_only=False,
-               do_testset_evaluation=True,
-               multi_label=True):
+               do_testset_evaluation=True
+               ):
 
     # redefine X and y
     X = df.drop(outcome, axis=1)
@@ -67,9 +70,14 @@ def prediction(outcome, df,
     if multi_label == True:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
                                                             test_size=0.2, shuffle=True)
-        if ml_smote == True:
-            X_sub, y_sub = get_minority_instance(X_train, pd.DataFrame(y_train))
-            X_train_n, y_train_n = MLSMOTE(X_sub, y_sub, 100)
+        if smote == True:
+            # Find indices of categorical features
+            categorical_features_indices = [X_train.columns.get_loc(col_name) for col_name in
+                                            categorical_features]
+
+            # Apply SMOTENC to training data
+            smote = SMOTENC(sampling_strategy='auto', categorical_features=categorical_features_indices, random_state=42)
+            X_train, y_train = smote.fit_resample(X_train, y_train)
 
     else:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
@@ -92,7 +100,7 @@ def prediction(outcome, df,
 
         param_list = [log_params, enet_params, rf_params, gb_params]
 
-        # Training
+        # Train ML Models =========================================================================================
         for model_name, pipe, params in zip(model_names, pipes, param_list):
 
             if do_GB_only == True:
@@ -102,6 +110,11 @@ def prediction(outcome, df,
             if model_name == "GB":
                 continue
             #     skip for now....
+
+            if do_Enet == False:
+                if model_name == "Enet":
+                    continue
+                #     skip for now....
 
             save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)
 
@@ -154,7 +167,7 @@ def prediction(outcome, df,
             best_params_dict[model_name] = joblib.load(params_save + '{}_{}{}{}.pkl'.format(model_name, outcome, start_string, t))
 
 
-    # Test Baseline Models
+    # Test Baseline Models =========================================================================================
     test_scores = {}
     print("Evaluating performance on test set of baseline models")
 
@@ -182,7 +195,7 @@ def prediction(outcome, df,
                                      "weighted_precision": round(dummy_results_dict['weighted avg']['precision'], 2),
                                      "weighted_f1": round(dummy_results_dict['weighted avg']['f1-score'], 2)}
 
-    # Test Model
+    # Test ML Models =========================================================================================
     optimised_pipes = {}
     for model_name, best_model_params, pipe in zip(model_names, best_params_dict, pipes):
 
@@ -192,7 +205,13 @@ def prediction(outcome, df,
 
         if model_name == "GB":
             continue
-        #     todo: fix GB
+        #     skip for now....
+
+        if do_Enet == False:
+            if model_name == "Enet":
+                continue
+            #     skip for now....
+
 
         save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)
         best_model_param_values = best_params_dict[model_name]

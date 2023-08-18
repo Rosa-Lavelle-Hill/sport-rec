@@ -1,16 +1,11 @@
 import numpy as np
 import pandas as pd
-from fixed_params import categorical_features, goal_vars
+from fixed_params import categorical_features, goal_vars, x_lab, person_id, answer_id
 from Functions.plotting import plot_hist, plot_count
 
 
 def preprocess(df, outcome):
-    if outcome == "sport_kat_b":
-        x_lab = "Sport Category (B)"
-    if outcome == "sport_kat_c":
-        x_lab = "Sport Category (C)"
-
-    # drop rows were dv Missing:
+    # drop rows where dv Missing:
     print("original data size")
     print(df.shape)
     df.dropna(subset=[outcome], axis=0, inplace=True, how='any')
@@ -82,12 +77,15 @@ def preprocess(df, outcome):
     save_path= "Outputs/Descriptives/Correlations/"
     check_cors(df_num, save_path=save_path, save_name="correlations.csv")
 
-    # save preprocessed data:
-    df.to_csv("Data/Preprocessed/preprocessed_{}.csv".format(outcome))
-
     # count unique individuals:
     unique_ids = df['ID_new'].nunique()
     print("unique individuals: " + str(unique_ids))
+
+    # drop answer id
+    df.drop([answer_id], axis=1, inplace=True)
+
+    # save preprocessed data:
+    df.to_csv("Data/Preprocessed/preprocessed_{}.csv".format(outcome))
 
     return df
 

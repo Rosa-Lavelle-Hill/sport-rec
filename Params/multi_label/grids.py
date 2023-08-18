@@ -9,8 +9,8 @@ gb_params = {"ml__estimator__min_samples_leaf": [5, 10, 20, 30],
              "ml__estimator__max_depth": [5, 10, 15, 20],
              "ml__estimator__random_state": [93]}
 
-log_params = {'ml__estimator__C':[0.001, 0.01, 0.1, 1, 10, 100, 1000],
-              "ml__estimator__penalty": ['l1', 'l2']}
+log_params = {'ml__estimator__C':[1, 10, 100, 1000],
+              "ml__estimator__penalty": ['l2']}
 
 enet_params = {"ml__estimator__C":[0.001, 0.01, 0.1, 1, 10, 100, 1000],
               "ml__estimator__l1_ratio": [0.2, 0.5, 0.8]}

@@ -1,32 +1,35 @@
 import pyreadstat
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 # Missings: an empty variable means that the person did not give an answer to this item.
 # A value of -999 means that this item was not asked.
 from sklearn.cluster import KMeans
 from sklearn.decomposition import NMF
-from fixed_params import outcome
+from fixed_params import outcome, x_lab, goal_vars, person_id, answer_id
 
 from Functions.nmf import Impute, Normalise, NMF_grid, Get_H_matrix, Get_W_matrix, Force_H_matrix
 from Functions.plotting import plot_count, plot_perc, plot_by_var, plot_clust, plot_clust_col, find_K, Plot_NMF_all
 
-df, meta = pyreadstat.read_sav('Data/all_long.sav')
+df, meta = pyreadstat.read_sav('Data/all_long_new.sav')
 
 # predicting cat sport b from goal variables
-person_id = ['ID_new']
-goal_vars = list(df.iloc[:, 53:61].columns)
-other_vars = ['sex', 'age', 'edu', 'sport_minwk', 'sport_min_kat']
-X = df[person_id + other_vars + goal_vars]
+other_vars = ['sex', 'age', 'edu', 'sport_min_kat']
+X = df[[person_id] + [answer_id] + other_vars + goal_vars]
+
+# code "-999" as na
+df[outcome] = np.where(df[outcome] == -999.0, np.nan, df[outcome])
 y = df[outcome].astype('category')
 
-# descriptives on outcome
+# descriptives of outcome
 print(y.value_counts())
 order_num = list(y.value_counts().index)
 order = y.nunique()
 
 # create data
 X_and_y = pd.concat([X, y], axis=1)
+X_and_y.sort_values(by=["ID_new", "Index1"], inplace=True, axis=0)
 X_and_y.to_csv("Data/X_and_y_{}.csv".format(outcome))
 
 cat_names = list(meta.variable_value_labels[outcome].values())
@@ -45,10 +48,6 @@ pd.DataFrame(short_names).to_csv(save_meta + "short_outcome_names_{}.csv".format
 pd.DataFrame(very_short_names).to_csv(save_meta + "v_short_outcome_names_{}.csv".format(outcome))
 
 # plots
-if outcome == "sport_kat_b":
-    x_lab = "Sport Category (B)"
-if outcome == "sport_kat_c":
-    x_lab = "Sport Category (C)"
 
 # plot freq of categories
 plot_count(data=X_and_y, x=outcome, hue=outcome, xlabs=very_short_names,
