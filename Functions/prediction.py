@@ -9,7 +9,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import precision_score, f1_score
 
 from Functions.plotting import plot_confusion_matrix
-from fixed_params import decimal_places, single_label_scoring, verbose, random_state, nfolds, categorical_features
+from fixed_params import decimal_places, single_label_scoring, verbose, random_state, nfolds, categorical_features, do_Enet
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
@@ -20,7 +20,7 @@ def prediction(outcome, df,
                use_pre_trained,
                smote,
                multi_label,
-               do_Enet=False,
+               do_Enet=do_Enet,
                do_GB_only=False,
                do_testset_evaluation=True
                ):
@@ -102,7 +102,7 @@ def prediction(outcome, df,
 
         # Train ML Models =========================================================================================
         for model_name, pipe, params in zip(model_names, pipes, param_list):
-
+            # todo: uneven list lengths?
             if do_GB_only == True:
                 if (model_name == "LM") or (model_name == "RF"):
                     continue
@@ -164,7 +164,14 @@ def prediction(outcome, df,
 
     else:
         for model_name in model_names:
-            best_params_dict[model_name] = joblib.load(params_save + '{}_{}{}{}.pkl'.format(model_name, outcome, start_string, t))
+            if do_Enet == False:
+                if model_name == 'Enet':
+                    model_names.remove('Enet')
+                    continue
+            if model_name == "GB":
+                continue
+            #     skip for now...
+            best_params_dict[model_name] = joblib.load(params_save + '{}_{}{}{}.pkl'.format(outcome, model_name, start_string, t))
 
 
     # Test Baseline Models =========================================================================================

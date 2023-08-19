@@ -1,8 +1,8 @@
 nfolds = 2
 
-rf_params = {'ml__estimator__max_depth': [5],
-             'ml__estimator__max_features': [0.3],
-             'ml__estimator__min_samples_split': [2],
+rf_params = {'ml__estimator__max_depth': [15],
+             'ml__estimator__max_features': [0.6],
+             'ml__estimator__min_samples_split': [3],
              'ml__estimator__n_estimators': [50],
              'ml__estimator__random_state': [93]}
 

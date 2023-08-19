@@ -7,6 +7,7 @@ import numpy as np
 from matplotlib import colors
 from sklearn.cluster import KMeans
 from sklearn.metrics import precision_recall_curve, roc_auc_score, roc_curve
+from fixed_params import do_Enet
 
 def plot_count(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs,
                title=""):
@@ -369,6 +370,8 @@ def run_plots_multilabel(results_df, start_string, t):
     x_ticks = ["Dummy Most Frequent", "Dummy Random",
                "Dummy Stratified", "Logistic Regression",
                "Elastic Net", "Random Forest"]
+    if do_Enet == False:
+        x_ticks = x_ticks.remove("Elastic Net")
 
     micro_precision = results_df[results_df.Model == "micro_precision"]
     micro_f1 = results_df[results_df.Model == "micro_f1"]

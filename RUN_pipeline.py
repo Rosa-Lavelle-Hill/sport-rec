@@ -6,7 +6,7 @@ from Functions.prediction import prediction
 from Functions.preprocess import preprocess
 from fixed_params import outcome, multi_label, smote
 
-use_pre_trained = False
+use_pre_trained = True
 test_run = False
 
 df = pd.read_csv("Data/X_and_y_{}.csv".format(outcome), index_col=[0])
@@ -20,7 +20,8 @@ start = dt.datetime.now()
 if use_pre_trained == False:
     start_string = start.strftime('_%d_%b_%Y__%H.%M')
 else:
-    start_string = "_11_Jun_2023__07.44"
+    # start_string = "_11_Jun_2023__07.44"
+    start_string = "_18_Aug_2023__16.52"
 if test_run == True:
     t= "_test"
 else:

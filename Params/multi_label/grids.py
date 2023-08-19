@@ -1,9 +1,9 @@
 nfolds = 5
-rf_params = {"ml__estimator__min_samples_split": [2, 3, 4, 5],
-             "ml__estimator__max_depth": [10, 15, 20],
-             "ml__estimator__n_estimators": [300, 500, 700],
+rf_params = {"ml__estimator__min_samples_split": [2, 3, 4],
+             "ml__estimator__max_depth": [15, 20],
+             "ml__estimator__n_estimators": [300],
              "ml__estimator__random_state": [93],
-             "ml__estimator__max_features": [0.3, 0.4, 0.5, 0.6]}
+             "ml__estimator__max_features": [0.6, 0.8, 1]}
 
 gb_params = {"ml__estimator__min_samples_leaf": [5, 10, 20, 30],
              "ml__estimator__max_depth": [5, 10, 15, 20],
