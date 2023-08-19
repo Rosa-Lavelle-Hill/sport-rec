@@ -4,13 +4,12 @@ import datetime as dt
 import joblib
 from imblearn.over_sampling import SMOTENC
 from sklearn.dummy import DummyClassifier
-from sklearn.metrics import confusion_matrix, classification_report, make_scorer, multilabel_confusion_matrix
+from sklearn.metrics import confusion_matrix, classification_report, multilabel_confusion_matrix
 from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.metrics import precision_score, f1_score
 
 from Functions.plotting import plot_confusion_matrix
-from fixed_params import decimal_places, single_label_scoring, verbose, random_state, nfolds, categorical_features,\
-    do_Enet, do_GB
+from fixed_params import decimal_places, single_label_scoring, multi_label_scoring, verbose, random_state, nfolds,\
+    categorical_features, do_Enet, do_GB
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
@@ -115,16 +114,6 @@ def prediction(outcome, df,
                 if (model_name == "LM") or (model_name == "RF"):
                     continue
 
-            # if do_GB == False:
-            #     if model_name == "GB":
-            #         continue
-            #     #     skip for now....
-            #
-            # if do_Enet == False:
-            #     if model_name == "Enet":
-            #         continue
-            #     #     skip for now....
-
             save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)
 
             print("Running {} model".format(model_name))
@@ -133,9 +122,7 @@ def prediction(outcome, df,
 
             if multi_label == True:
                 kfold = KFold(n_splits=nfolds, random_state=random_state, shuffle=True)
-                # scoring = make_scorer(precision_score, average="weighted", zero_division=0)
-                scoring = make_scorer(f1_score, average="micro", zero_division=0)
-            #     todo: ^ check: when no labels predicted, set to 0?
+                scoring = multi_label_scoring
             else:
                 # preserve the distribution of data across outcome classes
                 scoring = single_label_scoring
@@ -173,13 +160,6 @@ def prediction(outcome, df,
 
     else:
         for model_name in model_names:
-            # if do_Enet == False:
-            #     if model_name == 'Enet':
-            #         model_names.remove('Enet')
-            #         continue
-            # if model_name == "GB":
-            #     continue
-            # #     skip for now...
             best_params_dict[model_name] = joblib.load(params_save + '{}_{}{}{}.pkl'.format(outcome, model_name, start_string, t))
 
 
@@ -187,9 +167,12 @@ def prediction(outcome, df,
     test_scores = {}
     print("Evaluating performance on test set of baseline models")
 
-    pipe_dum_mf, pipe_dum_random, pipe_dum_strat = construct_dummy_pipelines(numeric_features_index, categorical_features_index, multi_label)
+    pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat = construct_dummy_pipelines(numeric_features_index,
+                                                                                            categorical_features_index,
+                                                                                            multi_label)
 
-    for dum_model, dum_name in zip([pipe_dum_mf, pipe_dum_random, pipe_dum_strat], ["Dummy_MF", "Dummy_Random", "Dummy_Stratified"]):
+    for dum_model, dum_name in zip([pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat],
+                                   ["Dummy_MF", "Dummy_Zero", "Dummy_Random", "Dummy_Stratified"]):
         dum_model.fit(X_train, y_train)
         y_pred = dum_model.predict(X_test)
         y_prob = dum_model.predict_proba(X_test)
@@ -204,7 +187,8 @@ def prediction(outcome, df,
             dummy_results_dict = classification_report(
                 y_test,
                 y_pred,
-                output_dict=True
+                output_dict=True,
+                zero_division=0.0
             )
             test_scores[dum_name] = {"micro_precision": round(dummy_results_dict['micro avg']['precision'], 2),
                                      "micro_f1": round(dummy_results_dict['micro avg']['f1-score'], 2),
@@ -218,17 +202,6 @@ def prediction(outcome, df,
         if do_GB_only == True:
             if (model_name != "GB"):
                 continue
-
-        # if do_GB == False:
-        #     if model_name == "GB":
-        #         continue
-        #     #     skip for now....
-        #
-        # if do_Enet == False:
-        #     if model_name == "Enet":
-        #         continue
-        #     #     skip for now....
-
 
         save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)
         best_model_param_values = best_params_dict[model_name]
@@ -275,13 +248,16 @@ def prediction(outcome, df,
                 results_dict = classification_report(
                     y_test,
                     y_pred,
-                    output_dict=True
+                    output_dict=True,
+                    zero_division=0.0
                 )
                 print("Best {} model performance on test data:\n".format(model_name) +
                       str(classification_report(y_test, y_pred, output_dict=False)), file=open(save_file, "a"))
 
                 m_cm = multilabel_confusion_matrix(y_test, y_pred)
                 print("Confusion matrices:\n".format(model_name) +
+                      " Predicted: \n"
+                      "   N | P  \n"
                       "[[TN, FP] \n" +
                        "[FN, TP]] \n \n" +
                       str(m_cm), file=open(save_file, "a"))

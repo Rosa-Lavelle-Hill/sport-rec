@@ -1,6 +1,8 @@
 
 import pandas as pd
 import datetime as dt
+
+from Functions.interpretation import interpretation
 from Functions.plotting import run_plots, run_plots_multilabel
 from Functions.prediction import prediction
 from Functions.preprocess import preprocess
@@ -39,9 +41,9 @@ else:
     run_plots_multilabel(results_df, start_string, t)
 
 
-# # (4) interpretation
-# interpretation(dv=dv, df=df, analysis=analysis, m=m,
-#                optimised_pipes=optimised_pipes, test_run=test_run,
-#                start_string=start_string)
+# (4) interpretation
+interpretation(outcome=outcome, df=df,
+               optimised_pipes=optimised_pipes,
+               start_string=start_string, t=t)
 
 print('done')

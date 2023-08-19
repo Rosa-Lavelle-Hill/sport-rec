@@ -218,6 +218,7 @@ def construct_dummy_pipelines(numeric_features_index, categorical_features_index
     scaler = StandardScaler()
     oh_encoder = OneHotEncoder(handle_unknown='error', drop="if_binary")
     dummy_mf = DummyClassifier(strategy="most_frequent")
+    dummy_zero = DummyClassifier(strategy="constant", constant=0)
     dummy_rand = DummyClassifier(strategy="uniform")
     dummy_strat = DummyClassifier(strategy="stratified")
 
@@ -248,22 +249,6 @@ def construct_dummy_pipelines(numeric_features_index, categorical_features_index
         ]
     )
 
-    # GB preprocessor pipeline:
-    categorical_transformer_GB = Pipeline(
-        steps=[("oh_encoder", oh_encoder)]
-    )
-
-    numeric_transformer_GB = Pipeline(
-        steps=[("scaler", scaler)]
-    )
-
-    preprocessor_GB = ColumnTransformer(sparse_threshold=0,
-        transformers=[
-            ("num", numeric_transformer_GB, numeric_features_index),
-            ("cat", categorical_transformer_GB, categorical_features_index),
-        ]
-    )
-
     # full pipelines:
 
     if multi_label == True:
@@ -271,6 +256,11 @@ def construct_dummy_pipelines(numeric_features_index, categorical_features_index
         pipe_dum_mf = Pipeline([
             ("preprocessor", preprocessor),
             ('ml', MultiOutputClassifier(estimator=dummy_mf))
+        ])
+
+        pipe_dum_zero = Pipeline([
+            ("preprocessor", preprocessor),
+            ('ml', MultiOutputClassifier(estimator=dummy_zero))
         ])
 
         pipe_dum_random = Pipeline([
@@ -290,6 +280,11 @@ def construct_dummy_pipelines(numeric_features_index, categorical_features_index
             ('classifier', dummy_mf)
         ])
 
+        pipe_dum_zero = Pipeline([
+            ("preprocessor", preprocessor),
+            ('classifier', dummy_zero)
+        ])
+
         pipe_dum_random = Pipeline([
             ("preprocessor", preprocessor),
             ('classifier', dummy_rand)
@@ -300,4 +295,4 @@ def construct_dummy_pipelines(numeric_features_index, categorical_features_index
             ('classifier', dummy_strat)
         ])
 
-    return pipe_dum_mf, pipe_dum_random, pipe_dum_strat
+    return pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat

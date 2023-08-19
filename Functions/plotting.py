@@ -339,7 +339,8 @@ def run_plots(results_df, start_string, t):
     results_df.rename(columns={"Unnamed: 0": "Model"}, inplace=True)
     save_path = "Results/Prediction/Plots/"
     save_name = "all_prediction_results"
-    x_ticks = ["Dummy Most Frequent", "Dummy Random",
+    x_ticks = ["Dummy Most Frequent", "Dummy Constant: 0",
+               "Dummy Random",
                "Dummy Stratified", "Logistic Regression",
                "Elastic Net", "Random Forest", "Gradient Boosting"]
     if do_Enet == False:
@@ -371,7 +372,8 @@ def run_plots_multilabel(results_df, start_string, t):
     results_df.rename(columns={"Unnamed: 0": "Model"}, inplace=True)
     save_path = "Results/Prediction/Plots/"
     save_name = "all_prediction_results"
-    x_ticks = ["Dummy Most Frequent", "Dummy Random",
+    x_ticks = ["Dummy Most Frequent", "Dummy Constant: 0",
+               "Dummy Random",
                "Dummy Stratified", "Logistic Regression",
                "Elastic Net", "Random Forest", "Gradient Boosting"]
     if do_Enet == False:

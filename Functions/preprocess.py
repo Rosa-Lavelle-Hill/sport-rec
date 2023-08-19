@@ -103,3 +103,10 @@ def check_cors(X, save_path, save_name):
     corr_iv.columns = ["Absolute_corr"]
     corr_iv.to_csv(save_path + save_name)
     return corr_iv
+
+
+def remove_cols(df, drop_cols):
+    for col in df:
+        if col in drop_cols:
+            df.drop(col, inplace=True, axis=1)
+    return df
