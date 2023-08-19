@@ -1,12 +1,13 @@
 import pandas as pd
 import shap
+import numpy as np
 from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
 
-from Functions.plotting import plot_impurity, plot_permutation, plot_SHAP
+from Functions.plotting import plot_impurity, plot_permutation, plot_SHAP, plot_impurity_ml
 from fixed_params import decimal_places, multi_label_scoring, single_label_scoring, verbose,\
     random_state, categorical_features, multi_label
-from preprocess import remove_cols
+from Functions.preprocessing import remove_cols
 from sklearn.preprocessing import MultiLabelBinarizer
 
 def interpretation(df, outcome, optimised_pipes,
@@ -19,7 +20,6 @@ def interpretation(df, outcome, optimised_pipes,
     # redefine X and y
     X = df.drop(outcome, axis=1)
     y = df[outcome]
-    display_n = len(X.columns) + 1
 
     # transform X and y
     # todo: save transformed data and load from file
@@ -51,39 +51,74 @@ def interpretation(df, outcome, optimised_pipes,
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
                                                         test_size=0.2, shuffle=True)
 
-    model_names = ["LM", "RF"]
+    model_names = ["Log", "RF"]
     for model_name in model_names:
 
         pipe = optimised_pipes[model_name]
-        pipe.fit(X_train, y_train)
 
         # Impurity-based Importance:
         if do_impurity_importance == True:
             if (model_name == "RF"):
 
-                feature_importances = pipe.named_steps["regressor"].feature_importances_
+                opt_model = pipe.named_steps.ml
+                opt_model.fit(X_test, y_test)
+                # todo: need to transform data********
 
-                vars = list(X.columns)
-                dict = {'Feature': vars, "Importance": feature_importances}
-                impurity_imp_df = pd.DataFrame(dict)
+                # # fit to and transform train
+                # X_train = preprocessor.fit_transform(X_train)
+                # random_forest_regression.fit(X_train, y_train)
+                # # transform test
+                # X_test = preprocessor.transform(X_test)
 
-                # just get most important x
-                impurity_imp_df.sort_values(by="Importance", ascending=False, inplace=True, axis=0)
-                impurity_imp_df = impurity_imp_df[0:display_n]
+                # Get the list of Random Forest estimators from MultiOutputClassifier
+                estimators_list = pipe.named_steps['ml'].estimators_
 
-                # flip so most important at top on graph
-                impurity_imp_df.sort_values(by="Importance", ascending=True, inplace=True, axis=0)
-                impurity_imp_df.to_csv("Results/Importance/Impurity/{}_{}{}.csv".format(model_name,
-                                                                                             start_string, t))
+                # Initialize a list to store the feature importances for each output
+                feature_importances_per_output = []
 
-                # plot
-                plot_impurity(impurity_imp_df=impurity_imp_df, display_n=display_n,
-                              save_path = "Results/Importance/Impurity/Plots/",
+                # Loop through each estimator (output) and retrieve feature importances
+                for estimator in estimators_list:
+                    feature_importances_per_output.append(estimator.feature_importances_)
+
+                # Convert the list to a numpy array for easier handling
+                feature_importances_array = np.array(feature_importances_per_output)
+
+                feature_names = list(X_train.columns)
+
+                # Convert the feature importances array to a DataFrame
+                impurity_imp_df = pd.DataFrame(
+                    feature_importances_array,
+                    columns=feature_names,
+                    index=range(len(estimators_list))  # Each row corresponds to an output
+                )
+
+                plot_impurity_ml(impurity_imp_df, save_path = "Results/Importance/Impurity/Plots/",
                               save_name = "{}_impurity_{}{}".format(model_name, start_string, t))
+
+
+                # vars = list(X.columns)
+                # dict = {'Feature': vars, "Importance": feature_importances}
+                # impurity_imp_df = pd.DataFrame(dict)
+                #
+                # # just get most important x
+                # impurity_imp_df.sort_values(by="Importance", ascending=False, inplace=True, axis=0)
+                # impurity_imp_df = impurity_imp_df
+                #
+                # # flip so most important at top on graph
+                # impurity_imp_df.sort_values(by="Importance", ascending=True, inplace=True, axis=0)
+                # impurity_imp_df.to_csv("Results/Importance/Impurity/{}_{}{}.csv".format(model_name,
+                #                                                                              start_string, t))
+                #
+                # # plot
+                # plot_impurity(impurity_imp_df=impurity_imp_df,
+                #               save_path = "Results/Importance/Impurity/Plots/",
+                #               save_name = "{}_impurity_{}{}".format(model_name, start_string, t))
 
         # Permutation Importance:
         if do_permutation_importance == True:
+
             print('starting permutation importance for model {}...'.format(model_name))
+            pipe.fit(X_train, y_train)
             result = permutation_importance(pipe, X_test, y_test, n_repeats=1, random_state=93, n_jobs=2)
 
             perm_importances = result.importances_mean
@@ -92,25 +127,30 @@ def interpretation(df, outcome, optimised_pipes,
             perm_imp_df = pd.DataFrame(dict)
             # just get most important x
             perm_imp_df.sort_values(by="Importance", ascending=False, inplace=True, axis=0)
-            perm_imp_df = perm_imp_df[0:display_n]
+            perm_imp_df = perm_imp_df
             # flip so most important at top on graph
             perm_imp_df.sort_values(by="Importance", ascending=True, inplace=True, axis=0)
             perm_imp_df.to_csv("Results/Importance/Permutation/{}_{}{}.csv".format(model_name,
                                                                                         start_string, t))
 
             # plot
-            plot_permutation(perm_imp_df=perm_imp_df, display_n=display_n,
-                          save_path="{}/Results{}/Importance/Permutation/Plots/".format(analysis, m),
+            plot_permutation(perm_imp_df=perm_imp_df,
+                          save_path="Results/Importance/Permutation/Plots/",
                           save_name="{}_perm_{}{}".format(model_name, start_string, t))
 
         if do_SHAP_importance == True:
-            if model_name != 'LM':
+            if model_name != 'Log':
                 print('starting SHAP importance for model {}...'.format(model_name))
+
                 # Fit the explainer
-                opt_model = pipe.named_steps.regressor
-                explainer = shap.TreeExplainer(opt_model, feature_pertubation="tree_path_dependent")
+                opt_model = pipe.named_steps.ml
+                opt_model.fit(X_test, y_test)
+                def shap_predict(inputs):
+                    return opt_model.predict_proba(inputs)
+                explainer = shap.Explainer(shap_predict, X_test)
+
                 # Calculate the SHAP values and save
-                shap_values = explainer.shap_values(X_test)
+                shap_values = explainer(X_test[0])
                 names = list(X.columns.values)
                 shap_values_df = pd.DataFrame(shap_values, columns=names)
                 shap_values_df.to_csv("Results/Importance/SHAP/SHAP_imp_{}_{}{}.csv".format(model_name,

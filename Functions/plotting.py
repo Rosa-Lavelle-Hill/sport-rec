@@ -148,8 +148,8 @@ def plot_results(y, data, colour, save_path, save_name,
     plt.close()
 
 
-def plot_impurity(impurity_imp_df, display_n, save_path, save_name):
-    y_ticks = np.arange(0, display_n)
+def plot_impurity(impurity_imp_df, save_path, save_name):
+    y_ticks = np.arange(0, impurity_imp_df.shape[0])
     fig, ax = plt.subplots()
     ax.barh(y_ticks, impurity_imp_df["Importance"])
     ax.set_yticks(y_ticks)
@@ -160,8 +160,19 @@ def plot_impurity(impurity_imp_df, display_n, save_path, save_name):
     return
 
 
-def plot_permutation(perm_imp_df, display_n, save_path, save_name):
-    y_ticks = np.arange(0, display_n)
+def plot_impurity_ml(impurity_imp_df, save_path, save_name):
+    # takes the mean
+    plt.figure(figsize=(10, 6))
+    impurity_imp_df.mean().sort_values(ascending=False).plot(kind='bar')
+    plt.title('Average Feature Importances Across Outputs')
+    plt.xlabel('Features')
+    plt.ylabel('Importance')
+    plt.savefig(save_path + save_name + ".png")
+    return
+# todo: also plot for each sport
+
+def plot_permutation(perm_imp_df, save_path, save_name):
+    y_ticks = np.arange(0, perm_imp_df.shape[0])
     fig, ax = plt.subplots()
     ax.barh(y_ticks, perm_imp_df["Importance"])
     ax.set_yticks(y_ticks)

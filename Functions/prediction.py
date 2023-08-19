@@ -20,9 +20,9 @@ def prediction(outcome, df,
                use_pre_trained,
                smote,
                multi_label,
+               do_testset_evaluation,
                do_Enet=do_Enet,
                do_GB_only=False,
-               do_testset_evaluation=True
                ):
 
     # redefine X and y
@@ -164,36 +164,38 @@ def prediction(outcome, df,
 
 
     # Test Baseline Models =========================================================================================
-    test_scores = {}
-    print("Evaluating performance on test set of baseline models")
+    if do_testset_evaluation == True:
 
-    pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat = construct_dummy_pipelines(numeric_features_index,
-                                                                                            categorical_features_index,
-                                                                                            multi_label)
+        test_scores = {}
+        print("Evaluating performance on test set of baseline models")
 
-    for dum_model, dum_name in zip([pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat],
-                                   ["Dummy_MF", "Dummy_Zero", "Dummy_Random", "Dummy_Stratified"]):
-        dum_model.fit(X_train, y_train)
-        y_pred = dum_model.predict(X_test)
-        y_prob = dum_model.predict_proba(X_test)
-        test_score_f1_weighted = round(metrics.f1_score(y_test, y_pred, average="weighted"), decimal_places)
-        if multi_label == False:
-            test_log_loss = round(metrics.log_loss(y_test, y_prob), decimal_places)
+        pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat = construct_dummy_pipelines(numeric_features_index,
+                                                                                                categorical_features_index,
+                                                                                                multi_label)
 
-            test_scores[dum_name] = {"F1_weighted": test_score_f1_weighted,
-                                "Log_loss": test_log_loss}
-        else:
-            test_scores[dum_name] = {"F1_weighted": test_score_f1_weighted}
-            dummy_results_dict = classification_report(
-                y_test,
-                y_pred,
-                output_dict=True,
-                zero_division=0.0
-            )
-            test_scores[dum_name] = {"micro_precision": round(dummy_results_dict['micro avg']['precision'], 2),
-                                     "micro_f1": round(dummy_results_dict['micro avg']['f1-score'], 2),
-                                     "weighted_precision": round(dummy_results_dict['weighted avg']['precision'], 2),
-                                     "weighted_f1": round(dummy_results_dict['weighted avg']['f1-score'], 2)}
+        for dum_model, dum_name in zip([pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat],
+                                       ["Dummy_MF", "Dummy_Zero", "Dummy_Random", "Dummy_Stratified"]):
+            dum_model.fit(X_train, y_train)
+            y_pred = dum_model.predict(X_test)
+            y_prob = dum_model.predict_proba(X_test)
+            test_score_f1_weighted = round(metrics.f1_score(y_test, y_pred, average="weighted"), decimal_places)
+            if multi_label == False:
+                test_log_loss = round(metrics.log_loss(y_test, y_prob), decimal_places)
+
+                test_scores[dum_name] = {"F1_weighted": test_score_f1_weighted,
+                                    "Log_loss": test_log_loss}
+            else:
+                test_scores[dum_name] = {"F1_weighted": test_score_f1_weighted}
+                dummy_results_dict = classification_report(
+                    y_test,
+                    y_pred,
+                    output_dict=True,
+                    zero_division=0.0
+                )
+                test_scores[dum_name] = {"micro_precision": round(dummy_results_dict['micro avg']['precision'], 2),
+                                         "micro_f1": round(dummy_results_dict['micro avg']['f1-score'], 2),
+                                         "weighted_precision": round(dummy_results_dict['weighted avg']['precision'], 2),
+                                         "weighted_f1": round(dummy_results_dict['weighted avg']['f1-score'], 2)}
 
     # Test ML Models =========================================================================================
     optimised_pipes = {}
