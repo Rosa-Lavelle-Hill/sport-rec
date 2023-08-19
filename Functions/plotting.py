@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib import colors
 from sklearn.cluster import KMeans
 from sklearn.metrics import precision_recall_curve, roc_auc_score, roc_curve
-from fixed_params import do_Enet
+from fixed_params import do_Enet, do_GB
 
 def plot_count(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs,
                title=""):
@@ -341,7 +341,11 @@ def run_plots(results_df, start_string, t):
     save_name = "all_prediction_results"
     x_ticks = ["Dummy Most Frequent", "Dummy Random",
                "Dummy Stratified", "Logistic Regression",
-               "Elastic Net", "Random Forest"]
+               "Elastic Net", "Random Forest", "Gradient Boosting"]
+    if do_Enet == False:
+        x_ticks.remove("Elastic Net")
+    if do_GB == False:
+        x_ticks.remove("Gradient Boosting")
 
     f1_weight = results_df[results_df.Model == "F1_weighted"]
     log_loss = results_df[results_df.Model == "Log_loss"]
@@ -369,9 +373,11 @@ def run_plots_multilabel(results_df, start_string, t):
     save_name = "all_prediction_results"
     x_ticks = ["Dummy Most Frequent", "Dummy Random",
                "Dummy Stratified", "Logistic Regression",
-               "Elastic Net", "Random Forest"]
+               "Elastic Net", "Random Forest", "Gradient Boosting"]
     if do_Enet == False:
-        x_ticks = x_ticks.remove("Elastic Net")
+        x_ticks.remove("Elastic Net")
+    if do_GB == False:
+        x_ticks.remove("Gradient Boosting")
 
     micro_precision = results_df[results_df.Model == "micro_precision"]
     micro_f1 = results_df[results_df.Model == "micro_f1"]

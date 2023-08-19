@@ -9,7 +9,8 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import precision_score, f1_score
 
 from Functions.plotting import plot_confusion_matrix
-from fixed_params import decimal_places, single_label_scoring, verbose, random_state, nfolds, categorical_features, do_Enet
+from fixed_params import decimal_places, single_label_scoring, verbose, random_state, nfolds, categorical_features,\
+    do_Enet, do_GB
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
@@ -66,6 +67,13 @@ def prediction(outcome, df,
     pipes = [pipe_log, pipe_enet, pipe_rf, pipe_gb]
     model_names = ["Log", "Enet", "RF", "GB"]
 
+    if do_GB == False:
+        pipes.remove(pipe_gb)
+        model_names.remove('GB')
+    if do_Enet == False:
+        pipes.remove(pipe_enet)
+        model_names.remove('Enet')
+
     # split data into train and test splits (can only stratify with single label)
     if multi_label == True:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
@@ -107,14 +115,15 @@ def prediction(outcome, df,
                 if (model_name == "LM") or (model_name == "RF"):
                     continue
 
-            if model_name == "GB":
-                continue
-            #     skip for now....
-
-            if do_Enet == False:
-                if model_name == "Enet":
-                    continue
-                #     skip for now....
+            # if do_GB == False:
+            #     if model_name == "GB":
+            #         continue
+            #     #     skip for now....
+            #
+            # if do_Enet == False:
+            #     if model_name == "Enet":
+            #         continue
+            #     #     skip for now....
 
             save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)
 
@@ -164,13 +173,13 @@ def prediction(outcome, df,
 
     else:
         for model_name in model_names:
-            if do_Enet == False:
-                if model_name == 'Enet':
-                    model_names.remove('Enet')
-                    continue
-            if model_name == "GB":
-                continue
-            #     skip for now...
+            # if do_Enet == False:
+            #     if model_name == 'Enet':
+            #         model_names.remove('Enet')
+            #         continue
+            # if model_name == "GB":
+            #     continue
+            # #     skip for now...
             best_params_dict[model_name] = joblib.load(params_save + '{}_{}{}{}.pkl'.format(outcome, model_name, start_string, t))
 
 
@@ -210,14 +219,15 @@ def prediction(outcome, df,
             if (model_name != "GB"):
                 continue
 
-        if model_name == "GB":
-            continue
-        #     skip for now....
-
-        if do_Enet == False:
-            if model_name == "Enet":
-                continue
-            #     skip for now....
+        # if do_GB == False:
+        #     if model_name == "GB":
+        #         continue
+        #     #     skip for now....
+        #
+        # if do_Enet == False:
+        #     if model_name == "Enet":
+        #         continue
+        #     #     skip for now....
 
 
         save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)

@@ -13,6 +13,7 @@ single_label_scoring = "f1_weighted"
 multi_label = True
 smote = False
 do_Enet = False
+do_GB = False
 verbose = 2
 random_state = 93
 nfolds = 3
