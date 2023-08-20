@@ -66,13 +66,6 @@ def prediction(outcome, df,
     pipes = [pipe_log, pipe_enet, pipe_rf, pipe_gb]
     model_names = ["Log", "Enet", "RF", "GB"]
 
-    if do_GB == False:
-        pipes.remove(pipe_gb)
-        model_names.remove('GB')
-    if do_Enet == False:
-        pipes.remove(pipe_enet)
-        model_names.remove('Enet')
-
     # split data into train and test splits (can only stratify with single label)
     if multi_label == True:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
@@ -106,6 +99,15 @@ def prediction(outcome, df,
 
 
         param_list = [log_params, enet_params, rf_params, gb_params]
+
+        if do_GB == False:
+            pipes.remove(pipe_gb)
+            model_names.remove('GB')
+            param_list.remove(gb_params)
+        if do_Enet == False:
+            pipes.remove(pipe_enet)
+            model_names.remove('Enet')
+            param_list.remove(enet_params)
 
         # Train ML Models =========================================================================================
         for model_name, pipe, params in zip(model_names, pipes, param_list):

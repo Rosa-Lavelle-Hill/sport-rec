@@ -12,9 +12,9 @@ from sklearn.preprocessing import MultiLabelBinarizer
 
 def interpretation(df, outcome, optimised_pipes,
                    start_string, t,
-                   do_impurity_importance=True,
-                   do_permutation_importance=True,
-                   do_SHAP_importance=True
+                   do_impurity_importance,
+                   do_permutation_importance,
+                   do_SHAP_importance
                    ):
 
     # redefine X and y
