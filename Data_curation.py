@@ -50,7 +50,7 @@ pd.DataFrame(very_short_names).to_csv(save_meta + "v_short_outcome_names_{}.csv"
 # plots
 
 # plot freq of categories
-plot_count(data=X_and_y, x=outcome, hue=outcome, xlabs=very_short_names,
+plot_count(data=X_and_y, x=outcome, hue=outcome, xlabs=very_short_names, leg_title=x_lab,
            save_path="Outputs/Descriptives/", save_name = "y_hist_{}".format(outcome),
            xlab=x_lab, leg_labs=short_names, title="Distribution of outcome variable")
 
@@ -64,7 +64,7 @@ plot_by_var(data=X_and_y, x=outcome, hue="sex", xlabs=very_short_names,
 plot_perc(data=X_and_y, x=outcome, hue=outcome, xlabs=very_short_names,
            save_path="Outputs/Descriptives/", save_name = "y_perc_{}".format(outcome),
            xlab=x_lab, leg_labs=short_names, title="Distribution of outcome variable (%)",
-          order=cat_nums)
+          order=cat_nums, leg_title=x_lab)
 
 # todo: reverse colours on legend
 # ------------------------------------------------------------------------------------------

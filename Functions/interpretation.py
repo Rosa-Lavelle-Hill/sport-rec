@@ -60,15 +60,16 @@ def interpretation(df, outcome, optimised_pipes,
         if do_impurity_importance == True:
             if (model_name == "RF"):
 
+                # fit to and transform train
+                preprocessor = pipe.named_steps['preprocessor']
                 opt_model = pipe.named_steps.ml
-                opt_model.fit(X_test, y_test)
-                # todo: need to transform data********
+                X_train_p = preprocessor.fit_transform(X_train)
+                opt_model.fit(X_train_p, y_train)
+                # transform test
+                X_test_p = preprocessor.transform(X_test)
 
-                # # fit to and transform train
-                # X_train = preprocessor.fit_transform(X_train)
-                # random_forest_regression.fit(X_train, y_train)
-                # # transform test
-                # X_test = preprocessor.transform(X_test)
+                opt_model.fit(X_test_p, y_test)
+                # todo: need to transform data********
 
                 # Get the list of Random Forest estimators from MultiOutputClassifier
                 estimators_list = pipe.named_steps['ml'].estimators_
@@ -83,36 +84,23 @@ def interpretation(df, outcome, optimised_pipes,
                 # Convert the list to a numpy array for easier handling
                 feature_importances_array = np.array(feature_importances_per_output)
 
-                feature_names = list(X_train.columns)
+                feature_names = get_preprocessed_col_names(X, pipe, cat_vars=categorical_features)
 
                 # Convert the feature importances array to a DataFrame
                 impurity_imp_df = pd.DataFrame(
                     feature_importances_array,
                     columns=feature_names,
-                    index=range(len(estimators_list))  # Each row corresponds to an output
-                )
+                    index=[f'Category_{i}' for i in range(1, len(estimators_list) + 1)])
 
+                # plot mean impurity importance
                 plot_impurity_ml(impurity_imp_df, save_path = "Results/Importance/Impurity/Plots/",
                               save_name = "{}_impurity_{}{}".format(model_name, start_string, t))
 
+                # plot per sport classification using a heatmap:
 
-                # vars = list(X.columns)
-                # dict = {'Feature': vars, "Importance": feature_importances}
-                # impurity_imp_df = pd.DataFrame(dict)
-                #
-                # # just get most important x
-                # impurity_imp_df.sort_values(by="Importance", ascending=False, inplace=True, axis=0)
-                # impurity_imp_df = impurity_imp_df
-                #
-                # # flip so most important at top on graph
-                # impurity_imp_df.sort_values(by="Importance", ascending=True, inplace=True, axis=0)
-                # impurity_imp_df.to_csv("Results/Importance/Impurity/{}_{}{}.csv".format(model_name,
-                #                                                                              start_string, t))
-                #
-                # # plot
-                # plot_impurity(impurity_imp_df=impurity_imp_df,
-                #               save_path = "Results/Importance/Impurity/Plots/",
-                #               save_name = "{}_impurity_{}{}".format(model_name, start_string, t))
+
+
+
 
         # Permutation Importance:
         if do_permutation_importance == True:

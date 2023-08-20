@@ -9,7 +9,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 
 from Functions.plotting import plot_confusion_matrix
 from fixed_params import decimal_places, single_label_scoring, multi_label_scoring, verbose, random_state, nfolds,\
-    categorical_features, do_Enet, do_GB
+    categorical_features, do_Enet, do_GB, predict_probab
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
@@ -26,6 +26,7 @@ def prediction(outcome, df,
                ):
 
     # redefine X and y
+    global mlb
     X = df.drop(outcome, axis=1)
     y = df[outcome]
 
@@ -66,6 +67,14 @@ def prediction(outcome, df,
     pipes = [pipe_log, pipe_enet, pipe_rf, pipe_gb]
     model_names = ["Log", "Enet", "RF", "GB"]
 
+    if do_GB == False:
+        pipes.remove(pipe_gb)
+        model_names.remove('GB')
+
+    if do_Enet == False:
+        pipes.remove(pipe_enet)
+        model_names.remove('Enet')
+
     # split data into train and test splits (can only stratify with single label)
     if multi_label == True:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
@@ -97,21 +106,15 @@ def prediction(outcome, df,
             else:
                 from Params.grids import log_params, enet_params, rf_params, gb_params
 
-
         param_list = [log_params, enet_params, rf_params, gb_params]
 
         if do_GB == False:
-            pipes.remove(pipe_gb)
-            model_names.remove('GB')
             param_list.remove(gb_params)
         if do_Enet == False:
-            pipes.remove(pipe_enet)
-            model_names.remove('Enet')
             param_list.remove(enet_params)
 
         # Train ML Models =========================================================================================
         for model_name, pipe, params in zip(model_names, pipes, param_list):
-            # todo: uneven list lengths?
             if do_GB_only == True:
                 if (model_name == "LM") or (model_name == "RF"):
                     continue
@@ -272,6 +275,32 @@ def prediction(outcome, df,
                                          "weighted_precision": round(results_dict['weighted avg']['precision'], 2),
                                          "weighted_f1": round(results_dict['weighted avg']['f1-score'], 2)}
 
+        if predict_probab == True:
+            if multi_label == True:
+                print('predicting probabilities')
+                predicted_probabilities = pipe.predict_proba(X_test)
+                class_names = mlb.classes_
+                # todo: sub in actual class names
+                positive_label_probabilities = [probs[:, 1] for probs in predicted_probabilities]
+                df_predicted_probabilities = np.transpose(pd.DataFrame(positive_label_probabilities))
+                df_predicted_probabilities.columns(class_names)
+                # convert to rankings
+                # Calculate class rankings
+                class_rankings = np.argsort(-df_predicted_probabilities.values, axis=1) + 1
+                # Create a DataFrame of class rankings
+                df_class_rankings = pd.DataFrame(class_rankings,
+                                                 columns=[f'Rank_{i}' for i in range(1, len(class_rankings[0]) + 1)])
+                rec_save_path = "Results/Recommendations/"
+                df_class_rankings.to_csv(rec_save_path + "all_recomendations_{}_{}{}".format(model_name, start_string, t))
+                # convert to top K recommendations
+                K=3
+                df_class_rankings_K = df_class_rankings.iloc[:, 0:K]
+                df_class_rankings_K.to_csv(
+                    rec_save_path + "{}_recomendations_{}_{}{}".format(K, model_name, start_string, t))
+
+
+
+
     if do_testset_evaluation == True:
         test_scores = pd.DataFrame.from_dict(test_scores)
         test_scores.to_csv(
@@ -279,5 +308,3 @@ def prediction(outcome, df,
 
     return optimised_pipes
 
-
-# todo: "Invalid parameter ml for estimator"

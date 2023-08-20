@@ -110,3 +110,12 @@ def remove_cols(df, drop_cols):
         if col in drop_cols:
             df.drop(col, inplace=True, axis=1)
     return df
+
+
+def get_preprocessed_col_names(X, pipe, cat_vars):
+    numeric_features = X.drop(cat_vars, inplace=False, axis=1).columns
+    dum_names = list(pipe.named_steps['preprocessor'].transformers_[1][1].named_steps['oh_encoder']
+                     .get_feature_names(cat_vars))
+    num_names = list(X[numeric_features].columns.values)
+    names = num_names + dum_names
+    return names

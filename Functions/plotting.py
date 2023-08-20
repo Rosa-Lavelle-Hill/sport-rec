@@ -9,7 +9,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import precision_recall_curve, roc_auc_score, roc_curve
 from fixed_params import do_Enet, do_GB
 
-def plot_count(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs,
+def plot_count(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, leg_title,
                title=""):
     n = data[x].nunique() + 1
     # pal = sns.color_palette(cc.glasbey, n_colors=14)
@@ -32,13 +32,13 @@ def plot_count(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs,
 # todo: sort out ordering
 
 
-def plot_perc(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, order, title=""):
+def plot_perc(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, order, leg_title, title=""):
     n = data[x].nunique() + 1
     plt.figure(figsize=(7.8, 4))
     sns.histplot(data=data, x=x, hue=hue, stat="percent", discrete=True, bins=14,
                  legend=False, hue_order=order)
     plt.xticks(ticks= range(1, n), labels=xlabs, rotation=60, size=7)
-    plt.legend(bbox_to_anchor=(1, 1), title='Sport Category (B)', loc='upper left',
+    plt.legend(bbox_to_anchor=(1, 1), title=leg_title, loc='upper left',
                labels=leg_labs, fontsize=9)
     plt.xlabel(xlab)
     plt.title(title)
@@ -51,13 +51,13 @@ def plot_perc(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, order, 
     return
 
 
-def plot_by_var(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, title=""):
+def plot_by_var(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, leg_title='Gender', title=""):
     n = data[x].nunique() + 1
     plt.figure(figsize=(7.8, 4))
     sns.histplot(data=data, x=x, hue=hue, stat="count", discrete=True, bins=14,
                  legend=False)
     plt.xticks(ticks= range(1, n), labels=xlabs, rotation=60, size=7)
-    plt.legend(bbox_to_anchor=(1, 1), title='Gender', loc='upper left',
+    plt.legend(bbox_to_anchor=(1, 1), title=leg_title, loc='upper left',
                labels=leg_labs, fontsize=9)
     plt.xlabel(xlab)
     plt.title(title)
@@ -162,11 +162,13 @@ def plot_impurity(impurity_imp_df, save_path, save_name):
 
 def plot_impurity_ml(impurity_imp_df, save_path, save_name):
     # takes the mean
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(8, 8))
     impurity_imp_df.mean().sort_values(ascending=False).plot(kind='bar')
-    plt.title('Average Feature Importances Across Outputs')
+    plt.title('Average feature importance across all sport classifications')
     plt.xlabel('Features')
-    plt.ylabel('Importance')
+    plt.ylabel('Impurity Importance')
+    plt.subplots_adjust(bottom=0.3)
+    plt.tight_layout()
     plt.savefig(save_path + save_name + ".png")
     return
 # todo: also plot for each sport

@@ -8,7 +8,7 @@ from Functions.prediction import prediction
 from Functions.preprocessing import preprocess
 from fixed_params import outcome, multi_label, smote
 
-use_pre_trained = False
+use_pre_trained = True
 test_run = False
 do_testset_evaluation = True
 
@@ -24,7 +24,7 @@ if use_pre_trained == False:
     start_string = start.strftime('_%d_%b_%Y__%H.%M')
 else:
     # start_string = "_11_Jun_2023__07.44"
-    start_string = "_18_Aug_2023__16.52"
+    start_string = "_19_Aug_2023__20.50"
 if test_run == True:
     t= "_test"
 else:
@@ -47,9 +47,9 @@ else:
 interpretation(outcome=outcome, df=df,
                optimised_pipes=optimised_pipes,
                start_string=start_string, t=t,
-               do_impurity_importance=False,
-               do_permutation_importance=True,
-               do_SHAP_importance=False
+               do_impurity_importance=True,
+               do_permutation_importance=False,
+               do_SHAP_importance=True
                )
 
 print('done')
