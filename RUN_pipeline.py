@@ -10,7 +10,8 @@ from fixed_params import outcome, multi_label, smote
 
 use_pre_trained = True
 test_run = False
-do_testset_evaluation = True
+do_testset_evaluation = False
+
 
 df = pd.read_csv("Data/X_and_y_{}.csv".format(outcome), index_col=[0])
 
@@ -33,7 +34,8 @@ else:
 optimised_pipes = prediction(outcome=outcome, df=df, test_run=test_run,
                              use_pre_trained=use_pre_trained, smote=smote,
                              start_string=start_string, t=t, multi_label=multi_label,
-                             do_testset_evaluation=do_testset_evaluation)
+                             do_testset_evaluation=do_testset_evaluation,
+                             predict_probab=False)
 
 # (3) plot prediction results
 results_df = pd.read_csv("Results/Prediction/all_test_scores_{}{}{}.csv".format(outcome, start_string, t))
@@ -42,6 +44,7 @@ if multi_label == False:
 else:
     run_plots_multilabel(results_df, start_string, t)
 
+# todo: add option to turn off pred prob
 
 # (4) interpretation
 interpretation(outcome=outcome, df=df,
@@ -49,7 +52,8 @@ interpretation(outcome=outcome, df=df,
                start_string=start_string, t=t,
                do_impurity_importance=True,
                do_permutation_importance=False,
-               do_SHAP_importance=True
+               do_SHAP_importance=True,
+               recalc_SHAP=False
                )
 
 print('done')

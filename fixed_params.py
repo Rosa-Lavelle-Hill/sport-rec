@@ -18,7 +18,7 @@ multi_label = True
 smote = False
 do_Enet = False
 do_GB = False
-predict_probab = True
+# predict_probab = True
 
 decimal_places = 2
 verbose = 2

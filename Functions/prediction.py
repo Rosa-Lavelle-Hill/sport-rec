@@ -9,7 +9,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 
 from Functions.plotting import plot_confusion_matrix
 from fixed_params import decimal_places, single_label_scoring, multi_label_scoring, verbose, random_state, nfolds,\
-    categorical_features, do_Enet, do_GB, predict_probab
+    categorical_features, do_Enet, do_GB
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
@@ -21,6 +21,7 @@ def prediction(outcome, df,
                smote,
                multi_label,
                do_testset_evaluation,
+               predict_probab,
                do_Enet=do_Enet,
                do_GB_only=False,
                ):
@@ -283,8 +284,7 @@ def prediction(outcome, df,
                 # todo: sub in actual class names
                 positive_label_probabilities = [probs[:, 1] for probs in predicted_probabilities]
                 df_predicted_probabilities = np.transpose(pd.DataFrame(positive_label_probabilities))
-                df_predicted_probabilities.columns(class_names)
-                # convert to rankings
+                df_predicted_probabilities.columns = class_names
                 # Calculate class rankings
                 class_rankings = np.argsort(-df_predicted_probabilities.values, axis=1) + 1
                 # Create a DataFrame of class rankings
@@ -292,7 +292,7 @@ def prediction(outcome, df,
                                                  columns=[f'Rank_{i}' for i in range(1, len(class_rankings[0]) + 1)])
                 rec_save_path = "Results/Recommendations/"
                 df_class_rankings.to_csv(rec_save_path + "all_recomendations_{}_{}{}".format(model_name, start_string, t))
-                # convert to top K recommendations
+                # Convert to top K recommendations
                 K=3
                 df_class_rankings_K = df_class_rankings.iloc[:, 0:K]
                 df_class_rankings_K.to_csv(

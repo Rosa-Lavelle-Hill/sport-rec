@@ -4,17 +4,19 @@ import numpy as np
 from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
 
-from Functions.plotting import plot_impurity, plot_permutation, plot_SHAP, plot_impurity_ml
+from Functions.plotting import plot_impurity, plot_permutation, plot_SHAP, plot_impurity_ml, heatmap_importance, \
+    plot_SHAP_df
 from fixed_params import decimal_places, multi_label_scoring, single_label_scoring, verbose,\
     random_state, categorical_features, multi_label
-from Functions.preprocessing import remove_cols
+from Functions.preprocessing import remove_cols, get_preprocessed_col_names
 from sklearn.preprocessing import MultiLabelBinarizer
 
 def interpretation(df, outcome, optimised_pipes,
                    start_string, t,
                    do_impurity_importance,
                    do_permutation_importance,
-                   do_SHAP_importance
+                   do_SHAP_importance,
+                   recalc_SHAP
                    ):
 
     # redefine X and y
@@ -56,20 +58,43 @@ def interpretation(df, outcome, optimised_pipes,
 
         pipe = optimised_pipes[model_name]
 
+        # Permutation Importance:
+        if do_permutation_importance == True:
+
+            print('starting permutation importance for model {}...'.format(model_name))
+            pipe.fit(X_train, y_train)
+            result = permutation_importance(pipe, X_test, y_test, n_repeats=1, random_state=93, n_jobs=2)
+
+            perm_importances = result.importances_mean
+            vars = X.columns.to_list()
+            dict = {'Feature': vars, "Importance": perm_importances}
+            perm_imp_df = pd.DataFrame(dict)
+            # just get most important x
+            perm_imp_df.sort_values(by="Importance", ascending=False, inplace=True, axis=0)
+            perm_imp_df = perm_imp_df
+            # flip so most important at top on graph
+            perm_imp_df.sort_values(by="Importance", ascending=True, inplace=True, axis=0)
+            perm_imp_df.to_csv("Results/Importance/Permutation/{}_{}{}.csv".format(model_name,
+                                                                                        start_string, t))
+
+            # plot
+            plot_permutation(perm_imp_df=perm_imp_df,
+                          save_path="Results/Importance/Permutation/Plots/",
+                          save_name="{}_perm_{}{}".format(model_name, start_string, t))
+
+        if (do_impurity_importance == True) or (do_SHAP_importance == True):
+            # fit to and transform train
+            preprocessor = pipe.named_steps['preprocessor']
+            opt_model = pipe.named_steps.ml
+            X_train_p = preprocessor.fit_transform(X_train)
+            opt_model.fit(X_train_p, y_train)
+            # transform test
+            X_test_p = preprocessor.transform(X_test)
+            opt_model.fit(X_test_p, y_test)
+
         # Impurity-based Importance:
         if do_impurity_importance == True:
             if (model_name == "RF"):
-
-                # fit to and transform train
-                preprocessor = pipe.named_steps['preprocessor']
-                opt_model = pipe.named_steps.ml
-                X_train_p = preprocessor.fit_transform(X_train)
-                opt_model.fit(X_train_p, y_train)
-                # transform test
-                X_test_p = preprocessor.transform(X_test)
-
-                opt_model.fit(X_test_p, y_test)
-                # todo: need to transform data********
 
                 # Get the list of Random Forest estimators from MultiOutputClassifier
                 estimators_list = pipe.named_steps['ml'].estimators_
@@ -97,86 +122,124 @@ def interpretation(df, outcome, optimised_pipes,
                               save_name = "{}_impurity_{}{}".format(model_name, start_string, t))
 
                 # plot per sport classification using a heatmap:
-
-
-
-
-
-        # Permutation Importance:
-        if do_permutation_importance == True:
-
-            print('starting permutation importance for model {}...'.format(model_name))
-            pipe.fit(X_train, y_train)
-            result = permutation_importance(pipe, X_test, y_test, n_repeats=1, random_state=93, n_jobs=2)
-
-            perm_importances = result.importances_mean
-            vars = X.columns.to_list()
-            dict = {'Feature': vars, "Importance": perm_importances}
-            perm_imp_df = pd.DataFrame(dict)
-            # just get most important x
-            perm_imp_df.sort_values(by="Importance", ascending=False, inplace=True, axis=0)
-            perm_imp_df = perm_imp_df
-            # flip so most important at top on graph
-            perm_imp_df.sort_values(by="Importance", ascending=True, inplace=True, axis=0)
-            perm_imp_df.to_csv("Results/Importance/Permutation/{}_{}{}.csv".format(model_name,
-                                                                                        start_string, t))
-
-            # plot
-            plot_permutation(perm_imp_df=perm_imp_df,
-                          save_path="Results/Importance/Permutation/Plots/",
-                          save_name="{}_perm_{}{}".format(model_name, start_string, t))
+                heatmap_importance(df=impurity_imp_df,
+                                   title="", xlab="Sports",
+                                   ylab="Feature", save_name="Heatmap_RF_{}".format(start_string),
+                                   save_path="Results/Importance/Impurity/Plots/")
 
         if do_SHAP_importance == True:
-            if model_name != 'Log':
-                print('starting SHAP importance for model {}...'.format(model_name))
+            n_features = 14
+            # for now, only do SHAP for RF
+            if model_name == "RF":
+                shap_plot_save_path = f"Results/Importance/SHAP/{outcome}/Plots/"
+                if recalc_SHAP == True:
+                    print('starting SHAP importance for model {}...'.format(model_name))
 
-                # Fit the explainer
-                opt_model = pipe.named_steps.ml
-                opt_model.fit(X_test, y_test)
-                def shap_predict(inputs):
-                    return opt_model.predict_proba(inputs)
-                explainer = shap.Explainer(shap_predict, X_test)
+                    # Create a DataFrame to store SHAP values
+                    shap_df = pd.DataFrame(columns=['Class', 'Label', 'Feature', 'SHAP Value'])
 
-                # Calculate the SHAP values and save
-                shap_values = explainer(X_test[0])
-                names = list(X.columns.values)
-                shap_values_df = pd.DataFrame(shap_values, columns=names)
-                shap_values_df.to_csv("Results/Importance/SHAP/SHAP_imp_{}_{}{}.csv".format(model_name,
-                                                                                             start_string, t))
+                    # Loop through each class's estimator
+                    shap_dict = {}
+                    for cat_num in range(len(df[outcome].unique())):
+                        # Calculate SHAP values for the class-label combination
+                        explainer = shap.TreeExplainer(opt_model.estimators_[cat_num])
+                        shap_values = explainer.shap_values(X_test_p, check_additivity=False)
 
-                n_features = 10
-                shap_plot_save_path = "Results/Importance/SHAP/Plots/"
+                        # Store SHAP values in the DataFrame
+                        shap_df = pd.DataFrame(shap_values[1], columns=feature_names)
 
-                shap_values = explainer(X_test)
+                        # Save to enable reload
+                        save_name = f"category_{cat_num}.csv"
+                        shap_df.to_csv("Results/Importance/SHAP/{}/"+save_name)
 
-                plot_type = "bar"
-                plot_SHAP(shap_values, col_list=names,
-                          n_features=n_features, plot_type=plot_type,
-                          save_path=shap_plot_save_path,
-                          save_name="{}_SHAP_{}_nfeatures{}_{}{}.png".format(model_name, plot_type, n_features,
-                                                                             start_string, t))
+                        shap_dict[cat_num] = shap_df
 
-                plot_type = "summary"
-                plot_SHAP(shap_values, col_list=names,
-                          n_features=n_features, plot_type=None,
-                          save_path=shap_plot_save_path,
-                          save_name="{}_SHAP_{}_nfeatures{}_{}{}.png".format(model_name, plot_type, n_features,
-                                                                             start_string, t))
+                    # Concatenate the DataFrames in the dictionary
+                    shap_long_df = pd.concat(shap_dict.values(), ignore_index=True)
+                    shap_long_df.columns = feature_names
+                    shap_long_df.to_csv(
+                        "Results/Importance/SHAP/{}/SHAP_imp_{}_{}{}.csv".format(outcome, model_name, start_string, t))
 
-                plot_type = "violin"
-                plot_SHAP(shap_values, col_list=names,
-                          n_features=n_features, plot_type=plot_type,
-                          save_path=shap_plot_save_path,
-                          save_name="{}_SHAP_{}_nfeatures{}_{}{}.png".format(model_name, plot_type, n_features,
-                                                                             start_string, t))
+                if recalc_SHAP == False:
+                    shap_dict = {}
+                    for cat_num in range(len(df[outcome].unique())):
+                        save_name = f"category_{cat_num}"
+                        shap_df = pd.read_csv(f"Results/Importance/SHAP/{outcome}/"+save_name+".csv", index_col=[0])
+                        shap_dict[cat_num] = shap_df
+                    shap_long_df = pd.read_csv("Results/Importance/SHAP/{}/SHAP_imp_{}_{}{}.csv".format(outcome, model_name, start_string, t),
+                                               index_col=[0])
 
-                # if interaction_plots == True:
-                #     if only_df1 == True:
-                #         if df_num != '1':
-                #             continue
-                #     SHAP_tree_interaction(X=X, y=y, df_num=df_num, start_string=start_string,
-                #                           rf_params=rf_params, names=names, n_inter_features=10,
-                #                           save_path=analysis_path + "Results/Importance/Plots/Test_Data/{}/interaction/".format(
-                #                               model))
+
+                # # calculate overall SHAP across all catgeories:
+                # # todo: need to creat a artificula long_X df
+                # X_test_p_df = pd.DataFrame(X_test_p, columns=feature_names)
+                # shap_array = cat_shap_df.values
+                #
+                # plot_type = "bar"
+                # plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
+                #              n_features=n_features, plot_type=plot_type,
+                #              save_path=shap_plot_save_path,
+                #              save_name="{}_SHAP_{}_nfeatures{}_{}{}.png".format(model_name, plot_type, n_features,
+                #                                                                 start_string, t))
+                #
+                # plot_type = "summary"
+                # plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
+                #              n_features=n_features, plot_type=None,
+                #              save_path=shap_plot_save_path,
+                #              save_name="{}_SHAP_{}_nfeatures{}_{}{}.png".format(model_name, plot_type, n_features,
+                #                                                                 start_string, t))
+                #
+                # plot_type = "violin"
+                # plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
+                #              n_features=n_features, plot_type=plot_type,
+                #              save_path=shap_plot_save_path,
+                #              save_name="{}_SHAP_{}_nfeatures{}_{}{}.png".format(model_name, plot_type, n_features,
+                #                                                                 start_string, t))
+
+
+
+                # Get SHAP output for each category separately:
+                X_test_p_df = pd.DataFrame(X_test_p, columns=feature_names)
+                for cat_num in range(0, len(df[outcome].unique())):
+                    cat_shap_df = shap_dict[cat_num]
+                    shap_array = cat_shap_df.values
+                    # shap.summary_plot(shap_array, X_test_p_df)
+                    # # todo: this works, now iput to function^
+
+                    shap_plot_save_path = f"Results/Importance/SHAP/{outcome}/Plots/"
+
+                    plot_type = "bar"
+                    save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}{t}"
+                    plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
+                              n_features=n_features, plot_type=plot_type,
+                              save_path=shap_plot_save_path,
+                              save_name=save_name)
+
+                    plot_type = "summary"
+                    save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}{t}"
+                    plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
+                              n_features=n_features, plot_type=None,
+                              save_path=shap_plot_save_path,
+                              save_name=save_name)
+
+                    plot_type = "violin"
+                    save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}{t}"
+                    plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
+                              n_features=n_features, plot_type=plot_type,
+                              save_path=shap_plot_save_path,
+                              save_name=save_name)
+                    #
+                    # # if interaction_plots == True:
+                    #     if only_df1 == True:
+                    #         if df_num != '1':
+                    #             continue
+                    #     SHAP_tree_interaction(X=X, y=y, df_num=df_num, start_string=start_string,
+                    #                           rf_params=rf_params, names=names, n_inter_features=10,
+                    #                           save_path=analysis_path + "Results/Importance/Plots/Test_Data/{}/interaction/".format(
+                    #                               model))
+
+                    # todo: treat each shap df as different? currently 10x importance dfs
+
+
 
     return

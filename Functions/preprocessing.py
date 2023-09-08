@@ -63,7 +63,7 @@ def preprocess(df, outcome):
     very_short_names = list(very_short_names['0'])
     short_names = pd.read_csv("Data/Meta/short_outcome_names_{}.csv".format(outcome), index_col=[0])
     short_names = list(short_names['0'])
-    plot_count(data=df, x=outcome, hue=outcome, xlabs=very_short_names,
+    plot_count(data=df, x=outcome, hue=outcome, xlabs=very_short_names, leg_title=x_lab,
                save_path="Outputs/Descriptives/Modelling_df/", save_name="y_hist",
                xlab=x_lab, leg_labs=short_names, title="Distribution of outcome variable")
 

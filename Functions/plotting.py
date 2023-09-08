@@ -171,7 +171,30 @@ def plot_impurity_ml(impurity_imp_df, save_path, save_name):
     plt.tight_layout()
     plt.savefig(save_path + save_name + ".png")
     return
-# todo: also plot for each sport
+
+
+def heatmap_importance(df, save_name, save_path,  title,
+                       xlab, ylab, fontsize=12, palette="viridis", show_n="all",
+                       figsize=(8, 9), sort_by = "overall", tick_font_size=9):
+    df = np.transpose(df)
+    if sort_by == "overall":
+        df['sum'] = df.sum(axis=1)
+        df.sort_values(by="sum", inplace=True, ascending=False)
+        df.drop("sum", axis=1, inplace=True)
+
+    fig, ax = plt.subplots(figsize=figsize)
+    sns.heatmap(df, cmap=palette, yticklabels=True,
+                cbar_kws={'shrink': 0.5})
+    plt.title(title, fontsize=fontsize)
+    plt.xlabel(xlab, fontsize=fontsize)
+    plt.ylabel(ylab, fontsize=fontsize)
+    plt.yticks(fontsize=tick_font_size)
+    # plt.subplots_adjust(left=0.1)
+    plt.tight_layout()
+    plt.savefig(save_path + save_name + ".png")
+    return
+
+
 
 def plot_permutation(perm_imp_df, save_path, save_name):
     y_ticks = np.arange(0, perm_imp_df.shape[0])
@@ -239,7 +262,19 @@ def plot_SHAP(shap_dict, col_list, plot_type, n_features,
     shap.summary_plot(shap_dict, feature_names=col_list, show=False,
                       plot_type=plot_type, max_display=n_features)
     plt.tight_layout()
-    plt.savefig(save_path + save_name)
+    plt.savefig(save_path + save_name + ".png")
+    plt.clf()
+    plt.cla()
+    plt.close()
+
+
+def plot_SHAP_df(shap_array, X_df, col_list, plot_type, n_features,
+              save_path, save_name, figsize=(6,6)):
+    plt.figure(figsize=figsize)
+    shap.summary_plot(shap_array, X_df, feature_names=col_list, show=False,
+                      plot_type=plot_type, max_display=n_features)
+    plt.tight_layout()
+    plt.savefig(save_path + save_name + ".png")
     plt.clf()
     plt.cla()
     plt.close()
