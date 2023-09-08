@@ -268,16 +268,36 @@ def plot_SHAP(shap_dict, col_list, plot_type, n_features,
     plt.close()
 
 
-def plot_SHAP_df(shap_array, X_df, col_list, plot_type, n_features,
+def plot_SHAP_df(shap_array, X_df, col_list, plot_type, n_features, title,
               save_path, save_name, figsize=(6,6)):
     plt.figure(figsize=figsize)
     shap.summary_plot(shap_array, X_df, feature_names=col_list, show=False,
-                      plot_type=plot_type, max_display=n_features)
+                      plot_type=plot_type, max_display=n_features, title=title)
+    plt.title(title)
     plt.tight_layout()
     plt.savefig(save_path + save_name + ".png")
     plt.clf()
     plt.cla()
     plt.close()
+
+
+
+def plot_forceSHAP_df(shap_vals_df, explainer, i, base_val, col_list, title,
+              save_path, save_name, figsize=(6, 6)):
+    plt.figure(figsize=figsize)
+    shap_vals = shap_vals_df.iloc[i]
+    feature_names = shap_vals_df.columns
+    explanation = shap.Explanation(values=shap_vals, base_values=base_val, data=shap_vals_df)
+    shap.initjs()
+    expected_value = explainer.expected_value
+    shap.force_plot(expected_value, explanation.values, feature_names=feature_names, show=False)
+    plt.title(title)
+    plt.tight_layout()
+    plt.savefig(save_path + save_name + ".png")
+    plt.clf()
+    plt.cla()
+    plt.close()
+
 
 
 def plot_hist(x, bins, title,
@@ -540,5 +560,30 @@ def Plot_NMF_all(H, save_path, save_name):
     return
 
 
+
+def plot_SHAP_force(i, X_test, model, save_path, save_name,
+                    pred_model, title, figsize=(8, 4)):
+    if (pred_model == "rf") or (pred_model == "tree"):
+        explainerModel = shap.TreeExplainer(model)
+    elif (pred_model == "enet") or (pred_model == "lasso"):
+        masker = shap.maskers.Independent(data=X_test)
+        explainerModel = shap.LinearExplainer(model, masker=masker)
+    # todo: needs a mask
+    else:
+        print("please enter one of the regression or tree based models: 'rf', 'tree', 'lasso, or 'enet'")
+        breakpoint()
+    shap_values_Model = explainerModel.shap_values(X_test).round(2)
+    plt.figure(figsize=figsize)
+    p = shap.force_plot(explainerModel.expected_value.round(2), shap_values_Model[i],
+                        round(X_test.iloc[[i]], 2), matplotlib=True, show=False)
+    plt.gcf().set_size_inches(figsize)
+    plt.title(title)
+    plt.tight_layout()
+    plt.savefig(save_path + save_name + '.png')
+    plt.close()
+    plt.clf()
+    plt.cla()
+    plt.close()
+    return(p)
 
 # todo: plot all 14 CMs

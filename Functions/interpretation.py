@@ -5,7 +5,7 @@ from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
 
 from Functions.plotting import plot_impurity, plot_permutation, plot_SHAP, plot_impurity_ml, heatmap_importance, \
-    plot_SHAP_df
+    plot_SHAP_df, plot_SHAP_force, plot_forceSHAP_df
 from fixed_params import decimal_places, multi_label_scoring, single_label_scoring, verbose,\
     random_state, categorical_features, multi_label
 from Functions.preprocessing import remove_cols, get_preprocessed_col_names
@@ -154,6 +154,18 @@ def interpretation(df, outcome, optimised_pipes,
 
                         shap_dict[cat_num] = shap_df
 
+                        # Demo individual shap plots for a few individuals
+                        plot_type = "force"
+                        # todo: calculate base value as mean of test set predictions/actual ratio of 0:1s
+
+                        for i in range(1, 3):
+                            save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}_person{i}_{t}"
+                            base_val = 0.5
+                            cat_shap_df = shap_dict[cat_num]
+                            plot_forceSHAP_df(cat_shap_df, explainer, i, base_val, col_list=feature_names,
+                                              save_path=shap_plot_save_path,
+                                              save_name=save_name, title=f"Category {cat_num + 1}")
+
                     # Concatenate the DataFrames in the dictionary
                     shap_long_df = pd.concat(shap_dict.values(), ignore_index=True)
                     shap_long_df.columns = feature_names
@@ -213,22 +225,26 @@ def interpretation(df, outcome, optimised_pipes,
                     plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
                               n_features=n_features, plot_type=plot_type,
                               save_path=shap_plot_save_path,
-                              save_name=save_name)
+                              save_name=save_name, title=f"Category {cat_num +1}")
 
                     plot_type = "summary"
                     save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}{t}"
                     plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
                               n_features=n_features, plot_type=None,
                               save_path=shap_plot_save_path,
-                              save_name=save_name)
+                              save_name=save_name, title=f"Category {cat_num +1}")
 
                     plot_type = "violin"
                     save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}{t}"
                     plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
                               n_features=n_features, plot_type=plot_type,
                               save_path=shap_plot_save_path,
-                              save_name=save_name)
-                    #
+                              save_name=save_name, title=f"Category {cat_num +1}")
+
+                        # plot_SHAP_force(i=1, X_test=X_test_p_df, model=opt_model, save_path=shap_plot_save_path,
+                        #                 save_name=save_name, pred_model='rf', title=f"Category {cat_num +1}, person {i}")
+
+
                     # # if interaction_plots == True:
                     #     if only_df1 == True:
                     #         if df_num != '1':
