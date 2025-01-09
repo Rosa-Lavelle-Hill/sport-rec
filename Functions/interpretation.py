@@ -150,7 +150,7 @@ def interpretation(df, outcome, optimised_pipes,
 
                         # Save to enable reload
                         save_name = f"category_{cat_num}.csv"
-                        shap_df.to_csv("Results/Importance/SHAP/{}/"+save_name)
+                        shap_df.to_csv(f"Results/Importance/SHAP/{outcome}/"+save_name)
 
                         shap_dict[cat_num] = shap_df
 

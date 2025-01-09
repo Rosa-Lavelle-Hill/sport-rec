@@ -12,7 +12,7 @@ from fixed_params import outcome, x_lab, goal_vars, person_id, answer_id
 from Functions.nmf import Impute, Normalise, NMF_grid, Get_H_matrix, Get_W_matrix, Force_H_matrix
 from Functions.plotting import plot_count, plot_perc, plot_by_var, plot_clust, plot_clust_col, find_K, Plot_NMF_all
 
-df, meta = pyreadstat.read_sav('Data/all_long_new.sav')
+df, meta = pyreadstat.read_sav('Data/FinalDaten_BMZI_W1_W2_long.sav')
 
 # predicting cat sport b from goal variables
 other_vars = ['sex', 'age', 'edu', 'sport_min_kat']
@@ -42,6 +42,11 @@ for name in cat_names:
     short_names.append(short_name)
     very_short_names.append(very_short_name)
 
+# Create a dictionary by zipping the two lists together
+numbers = range(1, 11)
+very_short_names_dict = dict(zip(numbers, very_short_names))
+short_names_dict = dict(zip(numbers, short_names))
+
 save_meta = "Data/Meta/"
 pd.DataFrame(cat_names).to_csv(save_meta + "full_outcome_names_{}.csv".format(outcome))
 pd.DataFrame(short_names).to_csv(save_meta + "short_outcome_names_{}.csv".format(outcome))
@@ -50,9 +55,10 @@ pd.DataFrame(very_short_names).to_csv(save_meta + "v_short_outcome_names_{}.csv"
 # plots
 
 # plot freq of categories
-plot_count(data=X_and_y, x=outcome, hue=outcome, xlabs=very_short_names, leg_title=x_lab,
+plot_count(data=X_and_y, x=outcome, hue=outcome, xlabs=very_short_names,
            save_path="Outputs/Descriptives/", save_name = "y_hist_{}".format(outcome),
-           xlab=x_lab, leg_labs=short_names, title="Distribution of outcome variable")
+           xlab=x_lab, title="Distribution of outcome variable",
+           order=cat_nums, leg_title=x_lab, label_dict=short_names_dict)
 
 # plot freq of categories by gender
 plot_by_var(data=X_and_y, x=outcome, hue="sex", xlabs=very_short_names,
@@ -63,8 +69,8 @@ plot_by_var(data=X_and_y, x=outcome, hue="sex", xlabs=very_short_names,
 # plot % of categories
 plot_perc(data=X_and_y, x=outcome, hue=outcome, xlabs=very_short_names,
            save_path="Outputs/Descriptives/", save_name = "y_perc_{}".format(outcome),
-           xlab=x_lab, leg_labs=short_names, title="Distribution of outcome variable (%)",
-          order=cat_nums, leg_title=x_lab)
+           xlab=x_lab, title="Distribution of outcome variable (%)",
+           order=cat_nums, leg_title=x_lab, label_dict=short_names_dict)
 
 # todo: reverse colours on legend
 # ------------------------------------------------------------------------------------------
@@ -94,7 +100,7 @@ save_path="Outputs/Descriptives/NMF/"
 param_save_name = 'Outputs/Descriptives/NMF/NMF_params.pickle'
 # NMF_grid(X, y, param_save_name)
 
-nmf_opt = NMF(init="random", solver="cd", max_iter=250, random_state=93, alpha=5, n_components=5, tol=0.007)
+nmf_opt = NMF(init="random", solver="cd", max_iter=250, random_state=93, alpha_W=5, n_components=5, tol=0.007)
 nmf_opt.fit(X, y)
 print(nmf_opt.reconstruction_err_)
 

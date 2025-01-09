@@ -41,7 +41,7 @@ def Get_W_matrix(X, file_name, save_path, save_name):
     best_tol = b["nmf__tol"]
     best_alpha = b["nmf__alpha"]
     best_n = b["nmf__n_components"]
-    nmf_opt = NMF(init="random", solver="cd", max_iter=200, n_components=best_n, tol=best_tol, alpha=best_alpha,
+    nmf_opt = NMF(init="random", solver="cd", max_iter=200, n_components=best_n, tol=best_tol, alpha_W=best_alpha,
                   random_state=93)
     W = pd.DataFrame(nmf_opt.fit_transform(X))
     W.to_csv(save_path + save_name + '.csv')
@@ -54,7 +54,7 @@ def Get_H_matrix(X, file_name, save_path, save_name):
     best_tol = b["nmf__tol"]
     best_alpha = b["nmf__alpha"]
     best_n = b["nmf__n_components"]
-    nmf_opt = NMF(init="random", solver="cd", max_iter=200, n_components=best_n, tol=best_tol, alpha=best_alpha,
+    nmf_opt = NMF(init="random", solver="cd", max_iter=200, n_components=best_n, tol=best_tol, alpha_W=best_alpha,
                   random_state=93)
     nmf_opt.fit_transform(X)
     H = pd.DataFrame(nmf_opt.components_)
@@ -64,7 +64,7 @@ def Get_H_matrix(X, file_name, save_path, save_name):
 
 
 def Force_H_matrix(X, save_path, save_name, best_n, best_tol, best_alpha):
-    nmf_opt = NMF(init="random", solver="cd", max_iter=200, n_components=best_n, tol=best_tol, alpha=best_alpha,
+    nmf_opt = NMF(init="random", solver="cd", max_iter=200, n_components=best_n, tol=best_tol, alpha_W=best_alpha,
                   random_state=93)
     nmf_opt.fit_transform(X)
     H = pd.DataFrame(nmf_opt.components_)

@@ -9,13 +9,11 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import precision_recall_curve, roc_auc_score, roc_curve
 from fixed_params import do_Enet, do_GB
 
-def plot_count(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, leg_title,
+def plot_count_unordered(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, leg_title,
                title=""):
     n = data[x].nunique() + 1
-    # pal = sns.color_palette(cc.glasbey, n_colors=14)
-
     plt.figure(figsize=(7.8, 4))
-    sns.histplot(data=data, x=x, hue=hue, stat="count", discrete=True, bins=14,
+    ax = sns.histplot(data=data, x=x, hue=hue, stat="count", discrete=True, bins=14,
                  legend=False)
     plt.xticks(ticks=range(1, n), labels=xlabs, rotation=60, size=7)
     plt.xlabel(xlab)
@@ -29,26 +27,57 @@ def plot_count(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, leg_ti
     plt.cla()
     plt.close()
     return
-# todo: sort out ordering
 
 
-def plot_perc(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, order, leg_title, title=""):
+
+def plot_count(data, x, hue, xlabs, save_path, save_name, xlab,
+              label_dict, order, leg_title, title=""):
     n = data[x].nunique() + 1
     plt.figure(figsize=(7.8, 4))
-    sns.histplot(data=data, x=x, hue=hue, stat="percent", discrete=True, bins=14,
-                 legend=False, hue_order=order)
-    plt.xticks(ticks= range(1, n), labels=xlabs, rotation=60, size=7)
-    plt.legend(bbox_to_anchor=(1, 1), title=leg_title, loc='upper left',
-               labels=leg_labs, fontsize=9)
+    ax = sns.histplot(data=data, x=x, hue=hue, stat="count", discrete=True, bins=14, hue_order=order)
+    plt.xticks(ticks=range(1, n), labels=xlabs, rotation=60, size=7)
     plt.xlabel(xlab)
     plt.title(title)
+
+    # Create a manual legend
+    unique_hues = data[hue].unique()
+    handles = [plt.Line2D([0], [0], marker='o', color=sns.color_palette()[i], linestyle='')
+               for i, hue_val in enumerate(order) if hue_val in unique_hues]
+    new_labels = [label_dict.get(hue_val, hue_val) for hue_val in order if hue_val in unique_hues]
+
+    plt.legend(handles, new_labels, title=leg_title, loc='upper right', fontsize=9)
+
     plt.subplots_adjust(right=0.3)
     plt.tight_layout()
     plt.savefig(save_path + save_name + ".png")
     plt.clf()
     plt.cla()
     plt.close()
-    return
+
+
+def plot_perc(data, x, hue, xlabs, save_path, save_name, xlab,
+              label_dict, order, leg_title, title=""):
+    n = data[x].nunique() + 1
+    plt.figure(figsize=(7.8, 4))
+    ax = sns.histplot(data=data, x=x, hue=hue, stat="percent", discrete=True, bins=14, hue_order=order)
+    plt.xticks(ticks=range(1, n), labels=xlabs, rotation=60, size=7)
+    plt.xlabel(xlab)
+    plt.title(title)
+
+    # Create a manual legend
+    unique_hues = data[hue].unique()
+    handles = [plt.Line2D([0], [0], marker='o', color=sns.color_palette()[i], linestyle='')
+               for i, hue_val in enumerate(order) if hue_val in unique_hues]
+    new_labels = [label_dict.get(hue_val, hue_val) for hue_val in order if hue_val in unique_hues]
+
+    plt.legend(handles, new_labels, title=leg_title, loc='upper right', fontsize=9)
+
+    plt.subplots_adjust(right=0.3)
+    plt.tight_layout()
+    plt.savefig(save_path + save_name + ".png")
+    plt.clf()
+    plt.cla()
+    plt.close()
 
 
 def plot_by_var(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, leg_title='Gender', title=""):
