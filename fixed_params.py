@@ -26,6 +26,7 @@ random_state = 93
 test_size = 0.2
 nfolds = 5
 imputer_max_iter = 10
+n_shap_features = 17
 
 categorical_features = ['edu', 'sex', 'sport_min_kat']
 goal_vars = ['Zind_fitheal', 'Zind_figap', 'Zind_disstre', 'Zind_actenj', 'Zind_compperf', 'Zind_aes', 'Zind_con']

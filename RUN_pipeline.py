@@ -56,7 +56,7 @@ interpretation(outcome=outcome, df=df,
                do_impurity_importance=True,
                do_permutation_importance=False,
                do_SHAP_importance=True,
-               recalc_SHAP=True
+               recalc_SHAP=False
                )
 
 print('done')

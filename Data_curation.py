@@ -16,7 +16,7 @@ from Functions.plotting import plot_count, plot_perc, plot_by_var, plot_clust, p
 df, meta = pyreadstat.read_sav('Data/FinalDaten_BMZI_W1_W2_long.sav')
 
 # predicting cat sport b from goal variables
-usother_vars = ['sex', 'age', 'edu', 'sport_min_kat']
+other_vars = ['sex', 'age', 'edu', 'sport_min_kat']
 X = df[[person_id] + [answer_id] + other_vars + goal_vars]
 
 # code "-999" as na

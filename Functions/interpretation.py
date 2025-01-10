@@ -10,6 +10,7 @@ from Functions.plotting import plot_impurity, plot_permutation, plot_SHAP, plot_
     plot_SHAP_df, plot_SHAP_force, plot_forceSHAP_df
 from fixed_params import decimal_places, multi_label_scoring, single_label_scoring, verbose,\
     random_state, categorical_features, multi_label
+from fixed_params import n_shap_features as n_features
 from Functions.preprocessing import remove_cols, get_preprocessed_col_names
 from sklearn.preprocessing import MultiLabelBinarizer
 
@@ -59,6 +60,10 @@ def interpretation(df, outcome, optimised_pipes,
     for model_name in model_names:
 
         pipe = optimised_pipes[model_name]
+        feature_names = get_preprocessed_col_names(X, pipe, cat_vars=categorical_features)
+        with open("Data/Dicts_and_Lists/column_names.json", 'r') as file:
+            feature_names_dict = json.load(file)
+        nice_feature_names = [feature_names_dict[key] for key in feature_names]
 
         # Permutation Importance:
         if do_permutation_importance == True:
@@ -111,8 +116,6 @@ def interpretation(df, outcome, optimised_pipes,
                 # Convert the list to a numpy array for easier handling
                 feature_importances_array = np.array(feature_importances_per_output)
 
-                feature_names = get_preprocessed_col_names(X, pipe, cat_vars=categorical_features)
-
                 # Convert the feature importances array to a DataFrame
                 impurity_imp_df = pd.DataFrame(
                     feature_importances_array,
@@ -132,7 +135,6 @@ def interpretation(df, outcome, optimised_pipes,
         if do_SHAP_importance == True:
             filename = f"Results/Importance/SHAP/{outcome}/SHAP_imp_{model_name}_{start_string}{t}.pkl"
             shap_plot_save_path = f"Results/Importance/SHAP/{outcome}/Plots/"
-            n_features = X_train_p.shape[1]
             # for now, only do SHAP for RF
             if model_name == "RF":
                 if recalc_SHAP == True:
@@ -181,32 +183,35 @@ def interpretation(df, outcome, optimised_pipes,
 
                 # Get SHAP plot for each category separately:
                 X_test_p_df = pd.DataFrame(X_test_p, columns=feature_names)
+                with open("Data/Dicts_and_Lists/short_names_dict.json", 'r') as file:
+                    short_names_dict = json.load(file)
                 # for each outcome category
-                for cat_num in range(0, len(df[outcome].unique())):
-                    cat_shap_df = shap_dict[cat_num]
+                for cat_num in list(short_names_dict.keys()):
+                    cat_name = short_names_dict[cat_num]
+                    cat_shap_df = shap_dict[int(cat_num)-1]
                     # get shap values:
                     shap_array = cat_shap_df.values
 
                     plot_type = "bar"
                     save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}{t}"
-                    plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
+                    plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=nice_feature_names,
                               n_features=n_features, plot_type=plot_type,
                               save_path=shap_plot_save_path,
-                              save_name=save_name, title=f"Category {cat_num +1}")
+                              save_name=save_name, title=f"{cat_name}")
 
                     plot_type = "summary"
                     save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}{t}"
-                    plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
+                    plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=nice_feature_names,
                               n_features=n_features, plot_type=None,
                               save_path=shap_plot_save_path,
-                              save_name=save_name, title=f"Category {cat_num +1}")
+                              save_name=save_name, title=f"{cat_name}")
 
                     plot_type = "violin"
                     save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}{t}"
-                    plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
+                    plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=nice_feature_names,
                               n_features=n_features, plot_type=plot_type,
                               save_path=shap_plot_save_path,
-                              save_name=save_name, title=f"Category {cat_num +1}")
+                              save_name=save_name, title=f"{cat_name}")
 
 
                     # # if interaction_plots == True:
