@@ -14,12 +14,16 @@ from fixed_params import n_shap_features as n_features
 from Functions.preprocessing import remove_cols, get_preprocessed_col_names
 from sklearn.preprocessing import MultiLabelBinarizer
 
-def interpretation(df, outcome, optimised_pipes,
-                   start_string, t,
+def interpretation(df,
+                   outcome,
+                   optimised_pipes,
+                   start_string,
+                   t,
                    do_impurity_importance,
                    do_permutation_importance,
                    do_SHAP_importance,
-                   recalc_SHAP
+                   recalc_SHAP,
+                   model_names
                    ):
 
     # redefine X and y
@@ -56,7 +60,6 @@ def interpretation(df, outcome, optimised_pipes,
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
                                                         test_size=0.2, shuffle=True)
 
-    model_names = ["Log", "RF"]
     for model_name in model_names:
 
         pipe = optimised_pipes[model_name]
@@ -137,7 +140,7 @@ def interpretation(df, outcome, optimised_pipes,
             filename = f"Results/Importance/SHAP/{outcome}/SHAP_imp_{model_name}_{start_string}{t}.pkl"
             shap_plot_save_path = f"Results/Importance/SHAP/{outcome}/Plots/"
             # for now, only do SHAP for RF
-            if model_name == "RF":
+            if (model_name == "RF") or (model_name == "GB"):
                 if recalc_SHAP == True:
                     print('starting SHAP importance for model {}...'.format(model_name))
 
@@ -151,14 +154,17 @@ def interpretation(df, outcome, optimised_pipes,
                         explainer = shap.TreeExplainer(opt_model.estimators_[cat_num])
                         shap_values = explainer.shap_values(X_test_p, check_additivity=True)
 
-                        # extract SHAP vlaues for class 1 only
-                        shap_values_class1 = shap_values[:, :, 1]
+                        # extract SHAP values for class 1 only
+                        if shap_values.ndim == 3:
+                            shap_values_class1 = shap_values[:, :, 1]
+                        if shap_values.ndim == 2:
+                            shap_values_class1 = shap_values
 
                         # Create a DataFrame from the SHAP values for class 1
                         class_shap_df = pd.DataFrame(shap_values_class1, columns=feature_names)
 
                         # Save to enable reload
-                        save_name = f"category_{cat_num}.csv"
+                        save_name = f"category_{cat_num}_{model_name}.csv"
                         class_shap_df.to_csv(f"Results/Importance/SHAP/{outcome}/"+save_name)
                         shap_dict[cat_num] = class_shap_df
 

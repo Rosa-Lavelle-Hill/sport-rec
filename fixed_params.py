@@ -16,8 +16,6 @@ multi_label_scoring = make_scorer(f1_score, average="micro", zero_division=0)
 
 multi_label = True
 smote = False
-do_Enet = False
-do_GB = False
 # predict_probab = True
 
 decimal_places = 2

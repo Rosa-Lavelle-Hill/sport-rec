@@ -9,9 +9,9 @@ from sklearn.preprocessing import MultiLabelBinarizer
 
 from Functions.plotting import plot_confusion_matrix
 from fixed_params import decimal_places, single_label_scoring, multi_label_scoring, verbose, random_state, nfolds,\
-    categorical_features, do_Enet, do_GB, test_size
+    categorical_features, test_size
 from sklearn import metrics
-from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
+from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold, GroupShuffleSplit
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
 
 
@@ -22,12 +22,12 @@ def prediction(outcome, df,
                multi_label,
                do_testset_evaluation,
                predict_probab,
-               do_Enet=do_Enet,
-               do_GB_only=False,
+               do_Enet,
+               do_GB,
+               do_GB_only=True,
                ):
 
     # redefine X and y
-    global mlb
     X = df.drop(outcome, axis=1)
     y = df[outcome]
 
@@ -42,15 +42,6 @@ def prediction(outcome, df,
         X.sort_values(by="ID_new", inplace=True)
         X = X.drop_duplicates(subset="ID_new")
         X.set_index("ID_new", drop=True, inplace=True)
-        X_and_y = X.join(y)
-
-        # redefine X and y:
-        y = X_and_y[outcome]
-        mlb = MultiLabelBinarizer()
-        # todo: should be done on train and test set separately?****
-        mlb.fit(y)
-        y = mlb.transform(y)
-        X = X_and_y.drop(outcome, axis=1)
 
     else:
         # remove person identifier
@@ -76,10 +67,31 @@ def prediction(outcome, df,
         pipes.remove(pipe_enet)
         model_names.remove('Enet')
 
-    # split data into train and test splits (can only stratify with single label)
+    if do_GB_only == True:
+        model_names = ['GB']
+        pipes = [pipe_gb]
+
+    # split data into train and test splits (can only stratify with single label)... each indiv either in train or test (as y is grouped outcomes; i.e., 1 row per indiv)
     if multi_label == True:
+        print(f"Constructing multi-label classification pipeline")
+
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
                                                             test_size=test_size, shuffle=True)
+
+        # redefine y as 1 of K:
+        mlb = MultiLabelBinarizer()
+        y_train = mlb.fit_transform(y_train)
+        y_test = mlb.transform(y_test)
+
+        # save modelling data
+        print(f"train data: {X_train.shape}; test data: {X_test.shape} ... where each row is an individual (y is multidimensional)")
+        X_train.to_csv("Data/Modelling/MultiLab/NoSMOTE/X_train.csv", index=False)
+        X_test.to_csv("Data/Modelling/MultiLab/NoSMOTE/X_test.csv", index=False)
+        y_train_df = pd.DataFrame(y_train)
+        y_test_df = pd.DataFrame(y_train)
+        y_train_df.to_csv("Data/Modelling/MultiLab/NoSMOTE/y_train.csv", index=False)
+        y_test_df.to_csv("Data/Modelling/MultiLab/NoSMOTE/y_test.csv", index=False)
+
         if smote == True:
             # Find indices of categorical features
             categorical_features_indices = [X_train.columns.get_loc(col_name) for col_name in
@@ -92,6 +104,7 @@ def prediction(outcome, df,
     else:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
                                                             test_size=test_size, shuffle=True, stratify=y)
+    #     todo: ***if run, need to split based on indiv
 
     best_params_dict = {}
     params_save = "Results/Best_Params/"
@@ -113,6 +126,8 @@ def prediction(outcome, df,
             param_list.remove(gb_params)
         if do_Enet == False:
             param_list.remove(enet_params)
+        if do_GB_only == True:
+            param_list = [gb_params]
 
         # Train ML Models =========================================================================================
         for model_name, pipe, params in zip(model_names, pipes, param_list):
@@ -171,6 +186,7 @@ def prediction(outcome, df,
 
     # Test Baseline Models =========================================================================================
     if do_testset_evaluation == True:
+        # todo: put at end? do once!****
 
         test_scores = {}
         print("Evaluating performance on test set of baseline models")
@@ -306,5 +322,5 @@ def prediction(outcome, df,
         test_scores.to_csv(
             "Results/Prediction/all_test_scores_{}{}{}.csv".format(outcome, start_string, t))
 
-    return optimised_pipes
+    return optimised_pipes, model_names
 

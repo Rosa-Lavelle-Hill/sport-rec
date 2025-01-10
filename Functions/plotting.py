@@ -7,7 +7,6 @@ import numpy as np
 from matplotlib import colors
 from sklearn.cluster import KMeans
 from sklearn.metrics import precision_recall_curve, roc_auc_score, roc_curve
-from fixed_params import do_Enet, do_GB
 
 def plot_count_unordered(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, leg_title,
                title=""):
@@ -435,7 +434,7 @@ def plot_confusion_matrix(cm,
     return
 
 
-def run_plots(results_df, start_string, t):
+def run_plots(results_df, start_string, t, do_Enet, do_GB):
     results_df.rename(columns={"Unnamed: 0": "Model"}, inplace=True)
     save_path = "Results/Prediction/Plots/"
     save_name = "all_prediction_results"
@@ -468,7 +467,7 @@ def run_plots(results_df, start_string, t):
                  )
     return
 
-def run_plots_multilabel(results_df, start_string, t):
+def run_plots_multilabel(results_df, start_string, t, do_Enet, do_GB):
     results_df.rename(columns={"Unnamed: 0": "Model"}, inplace=True)
     save_path = "Results/Prediction/Plots/"
     save_name = "all_prediction_results"

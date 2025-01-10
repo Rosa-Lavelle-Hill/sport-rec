@@ -4,7 +4,7 @@ from imblearn.over_sampling import SMOTE
 from sklearn import metrics
 from sklearn.compose import ColumnTransformer
 from sklearn.dummy import DummyClassifier
-from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier, HistGradientBoostingClassifier
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.multioutput import MultiOutputClassifier
@@ -22,7 +22,7 @@ def construct_pipelines(numeric_features_index, categorical_features_index, mult
     scaler = StandardScaler()
     random_forest = RandomForestClassifier()
     oh_encoder = OneHotEncoder(handle_unknown='error', drop="if_binary")
-    gradient_boosting = GradientBoostingClassifier(validation_fraction=0.1, warm_start=True)
+    gradient_boosting = HistGradientBoostingClassifier(validation_fraction=0.1, warm_start=True)
     enet = LogisticRegression(penalty="elasticnet", random_state=random_state, solver="saga")
     log = LogisticRegression(random_state=random_state, solver="newton-cg")
 
