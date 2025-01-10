@@ -65,7 +65,7 @@ def interpretation(df, outcome, optimised_pipes,
             feature_names_dict = json.load(file)
         nice_feature_names = [feature_names_dict[key] for key in feature_names]
 
-        # Permutation Importance:
+        # Permutation Importance (across all categories):
         if do_permutation_importance == True:
 
             print('starting permutation importance for model {}...'.format(model_name))
@@ -74,7 +74,8 @@ def interpretation(df, outcome, optimised_pipes,
 
             perm_importances = result.importances_mean
             vars = X.columns.to_list()
-            dict = {'Feature': vars, "Importance": perm_importances}
+            nice_var_names = [feature_names_dict[key] for key in vars]
+            dict = {'Feature': nice_var_names, "Importance": perm_importances}
             perm_imp_df = pd.DataFrame(dict)
             # just get most important x
             perm_imp_df.sort_values(by="Importance", ascending=False, inplace=True, axis=0)

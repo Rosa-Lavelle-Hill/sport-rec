@@ -54,9 +54,10 @@ interpretation(outcome=outcome, df=df,
                optimised_pipes=optimised_pipes,
                start_string=start_string, t=t,
                do_impurity_importance=True,
-               do_permutation_importance=False,
+               do_permutation_importance=True,
                do_SHAP_importance=True,
                recalc_SHAP=False
                )
-
-print('done')
+end = dt.datetime.now()
+runtime = end - start
+print(f'Done. Run time: {runtime}')
