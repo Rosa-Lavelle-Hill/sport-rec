@@ -15,8 +15,11 @@ from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKF
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
 
 
-def prediction(outcome, df,
-               test_run, start_string, t,
+def prediction(outcome,
+               df,
+               test_run,
+               start_string,
+               t,
                use_pre_trained,
                smote,
                multi_label,
@@ -24,7 +27,7 @@ def prediction(outcome, df,
                predict_probab,
                do_Enet,
                do_GB,
-               do_GB_only=True,
+               do_GB_only=False,
                ):
 
     # redefine X and y
@@ -138,6 +141,7 @@ def prediction(outcome, df,
             save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)
 
             print("Running {} model".format(model_name))
+            model_start_time = dt.datetime.now()
             print("{}:".format(model_name),
                   file=open(save_file, "w"))
 
@@ -178,6 +182,11 @@ def prediction(outcome, df,
                 file=open(save_file, "a"))
 
             best_params_dict[model_name] = best_params
+
+            # runtime
+            model_end_time = dt.datetime.now()
+            model_run_time = model_end_time - model_start_time
+            print(f'{model_name} finished training. Run time: {model_run_time}')
 
     else:
         for model_name in model_names:
@@ -313,8 +322,6 @@ def prediction(outcome, df,
                 df_class_rankings_K = df_class_rankings.iloc[:, 0:K]
                 df_class_rankings_K.to_csv(
                     rec_save_path + "{}_recomendations_{}_{}{}".format(K, model_name, start_string, t))
-
-
 
 
     if do_testset_evaluation == True:

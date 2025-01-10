@@ -1,0 +1,62 @@
+GB:
+Training done. Time taken: 0:00:14.838669
+params tried:
+{'ml__estimator__max_depth': [15], 'ml__estimator__max_features': [0.6], 'ml__estimator__min_samples_split': [3], 'ml__estimator__n_estimators': [50], 'ml__estimator__random_state': [93]}
+
+Best training make_scorer(f1_score, response_method='predict', average=micro, zero_division=0) score: 0.364. Best model params:
+{'ml__estimator__max_depth': 15, 'ml__estimator__min_samples_leaf': 5, 'ml__estimator__random_state': 93}.
+
+Best GB model performance on test data:
+              precision    recall  f1-score   support
+
+           0       0.62      0.63      0.63      2117
+           1       0.42      0.04      0.07       847
+           2       0.00      0.00      0.00       450
+           3       0.64      0.34      0.44      1653
+           4       0.18      0.00      0.01       501
+           5       0.50      0.04      0.08       290
+           6       1.00      0.00      0.00       617
+           7       0.38      0.02      0.04       458
+           8       0.58      0.28      0.38       466
+           9       0.11      0.00      0.00       398
+
+   micro avg       0.61      0.27      0.37      7797
+   macro avg       0.44      0.14      0.16      7797
+weighted avg       0.52      0.27      0.30      7797
+ samples avg       0.43      0.28      0.32      7797
+
+Confusion matrices:
+ Predicted: 
+   N | P  
+[[TN, FP] 
+[FN, TP]] 
+ 
+[[[1174  832]
+  [ 776 1341]]
+
+ [[3234   42]
+  [ 816   31]]
+
+ [[3673    0]
+  [ 450    0]]
+
+ [[2156  314]
+  [1094  559]]
+
+ [[3613    9]
+  [ 499    2]]
+
+ [[3821   12]
+  [ 278   12]]
+
+ [[3506    0]
+  [ 616    1]]
+
+ [[3650   15]
+  [ 449    9]]
+
+ [[3564   93]
+  [ 336  130]]
+
+ [[3717    8]
+  [ 397    1]]]

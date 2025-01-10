@@ -6,12 +6,14 @@ from Functions.interpretation import interpretation
 from Functions.plotting import run_plots, run_plots_multilabel
 from Functions.prediction import prediction
 from Functions.preprocessing import preprocess
-from fixed_params import outcome, multi_label, smote
+from fixed_params import outcome, multi_label, smote, select_model_score
 
 # Run options:
 use_pre_trained = False
-test_run = True
+test_run = False
 do_testset_evaluation = True
+only_best_model = True
+# ==========================
 do_Enet = True
 do_GB = True
 
@@ -53,6 +55,7 @@ if __name__ == "__main__":
 
     # (3) plot prediction results
     results_df = pd.read_csv("Results/Prediction/all_test_scores_{}{}{}.csv".format(outcome, start_string, t))
+
     if multi_label == False:
         run_plots(results_df=results_df,
                              start_string=start_string,
@@ -65,9 +68,18 @@ if __name__ == "__main__":
                              t=t,
                              do_Enet=do_Enet,
                              do_GB=do_GB)
-    # todo: add option to turn off pred prob
 
     # (4) interpretation
+    if only_best_model == True:
+        # Select the column with the highest value for select_model_score
+        row = results_df[results_df["Model"] == select_model_score]
+        row_models = row[model_names]
+        max_values = row_models.max()
+        best_model = max_values[max_values == max_values.max()].index[-1]
+        print(f"Only interpreting column with the highest {select_model_score}: {best_model}")
+    else:
+        best_model = None
+
     interpretation(outcome=outcome,
                    df=df,
                    optimised_pipes=optimised_pipes,
@@ -77,7 +89,8 @@ if __name__ == "__main__":
                    do_permutation_importance=False,
                    do_SHAP_importance=True,
                    recalc_SHAP=True,
-                   model_names=model_names
+                   model_names=model_names,
+                   best_model=best_model
                    )
 
     end = dt.datetime.now()

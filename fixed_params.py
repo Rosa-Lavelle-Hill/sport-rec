@@ -13,12 +13,13 @@ answer_id = "Index1"
 
 single_label_scoring = "f1_micro"
 multi_label_scoring = make_scorer(f1_score, average="micro", zero_division=0)
+select_model_score = "weighted_precision"
 
 multi_label = True
 smote = False
 # predict_probab = True
 
-decimal_places = 2
+decimal_places = 3
 verbose = 2
 random_state = 93
 test_size = 0.2

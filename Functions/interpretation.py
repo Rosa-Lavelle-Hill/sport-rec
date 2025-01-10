@@ -23,7 +23,8 @@ def interpretation(df,
                    do_permutation_importance,
                    do_SHAP_importance,
                    recalc_SHAP,
-                   model_names
+                   model_names,
+                   best_model
                    ):
 
     # redefine X and y
@@ -44,13 +45,6 @@ def interpretation(df,
         X.set_index("ID_new", drop=True, inplace=True)
         X_and_y = X.join(y)
 
-        # redefine X and y:
-        y = X_and_y[outcome]
-        mlb = MultiLabelBinarizer()
-        mlb.fit(y)
-        y = mlb.transform(y)
-        X = X_and_y.drop(outcome, axis=1)
-
     else:
         # remove person identifier
         X.drop('ID_new', axis=1, inplace=True)
@@ -59,6 +53,14 @@ def interpretation(df,
     # split data into train and test splits
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
                                                         test_size=0.2, shuffle=True)
+
+    # redefine y as 1 of K:
+    mlb = MultiLabelBinarizer()
+    y_train = mlb.fit_transform(y_train)
+    y_test = mlb.transform(y_test)
+
+    if best_model:
+        model_names = [best_model]
 
     for model_name in model_names:
 
