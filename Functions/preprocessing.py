@@ -2,7 +2,7 @@ import json
 import numpy as np
 import pandas as pd
 from fixed_params import categorical_features, goal_vars, x_lab, person_id, answer_id
-from Functions.plotting import plot_hist, plot_count
+from Functions.plotting import plot_hist, plot_count, plot_by_var, plot_perc
 
 
 def preprocess(df, outcome):
@@ -59,21 +59,40 @@ def preprocess(df, outcome):
     df.dropna(axis=0, how="all", subset=goal_vars, inplace=True)
     print(df.shape)
 
+    # remove duplicate rows (not including index):
+    print("dropped duplicate rows")
+    columns_to_consider = [col for col in df.columns if col != "Index1"]
+    df.drop_duplicates(inplace=True, subset=columns_to_consider)
+    print(df.shape)
+
     # plot freq of categories after data dropped
     very_short_names = pd.read_csv("Data/Meta/v_short_outcome_names_{}.csv".format(outcome), index_col=[0])
     very_short_names = list(very_short_names['0'])
-    short_names = pd.read_csv("Data/Meta/short_outcome_names_{}.csv".format(outcome), index_col=[0])
-    short_names = list(short_names['0'])
 
     with open('Data/Dicts_and_Lists/cat_nums.json', 'r') as file:
         cat_nums = json.load(file)
+
     with open('Data/Dicts_and_Lists/short_names_dict.json', 'r') as file:
         short_names_dict = json.load(file)
 
+    # plot freq of categories
+    df[outcome] = df[outcome].astype('category')
     plot_count(data=df, x=outcome, hue=outcome, xlabs=very_short_names,
-               save_path="Outputs/Descriptives/", save_name="y_hist_{}".format(outcome),
+               save_path="Outputs/Descriptives/Modelling_df/", save_name="y_hist_{}".format(outcome),
                xlab=x_lab, title="Distribution of outcome variable",
                order=cat_nums, leg_title=x_lab, label_dict=short_names_dict)
+
+    # plot freq of categories by gender
+    plot_by_var(data=df, x=outcome, hue="sex", xlabs=very_short_names,
+                save_path="Outputs/Descriptives/Modelling_df/", save_name="y_hist_gender_{}".format(outcome),
+                xlab=x_lab, leg_labs=["Women", "Men"],
+                title="Distribution of outcome variable by gender")
+
+    # plot % of categories
+    plot_perc(data=df, x=outcome, hue=outcome, xlabs=very_short_names,
+              save_path="Outputs/Descriptives/Modelling_df/", save_name="y_perc_{}".format(outcome),
+              xlab=x_lab, title="Distribution of outcome variable (%)",
+              order=cat_nums, leg_title=x_lab, label_dict=short_names_dict)
 
     # recode cat vars:
     for var in categorical_features:
@@ -94,6 +113,7 @@ def preprocess(df, outcome):
 
     # save preprocessed data:
     df.to_csv("Data/Preprocessed/preprocessed_{}.csv".format(outcome))
+    print(f"Preprocessing finished.\nFinal processed data shape: {df.shape}")
 
     return df
 

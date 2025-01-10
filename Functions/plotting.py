@@ -33,11 +33,13 @@ def plot_count_unordered(data, x, hue, xlabs, save_path, save_name, xlab, leg_la
 def plot_count(data, x, hue, xlabs, save_path, save_name, xlab,
               label_dict, order, leg_title, title=""):
     n = data[x].nunique() + 1
-    plt.figure(figsize=(7.8, 4))
+    plt.figure(figsize=(7.8, 5))
     ax = sns.histplot(data=data, x=x, hue=hue, stat="count", discrete=True, bins=14, hue_order=order)
     plt.xticks(ticks=range(1, n), labels=xlabs, rotation=60, size=7)
     plt.xlabel(xlab)
     plt.title(title)
+
+    label_dict = {int(k) if isinstance(k, str) and k.isdigit() else k: v for k, v in label_dict.items()}
 
     # Create a manual legend
     unique_hues = data[hue].unique()
@@ -58,11 +60,13 @@ def plot_count(data, x, hue, xlabs, save_path, save_name, xlab,
 def plot_perc(data, x, hue, xlabs, save_path, save_name, xlab,
               label_dict, order, leg_title, title=""):
     n = data[x].nunique() + 1
-    plt.figure(figsize=(7.8, 4))
+    plt.figure(figsize=(7.8, 5))
     ax = sns.histplot(data=data, x=x, hue=hue, stat="percent", discrete=True, bins=14, hue_order=order)
     plt.xticks(ticks=range(1, n), labels=xlabs, rotation=60, size=7)
     plt.xlabel(xlab)
     plt.title(title)
+
+    label_dict = {int(k) if isinstance(k, str) and k.isdigit() else k: v for k, v in label_dict.items()}
 
     # Create a manual legend
     unique_hues = data[hue].unique()
@@ -82,7 +86,7 @@ def plot_perc(data, x, hue, xlabs, save_path, save_name, xlab,
 
 def plot_by_var(data, x, hue, xlabs, save_path, save_name, xlab, leg_labs, leg_title='Gender', title=""):
     n = data[x].nunique() + 1
-    plt.figure(figsize=(7.8, 4))
+    plt.figure(figsize=(7.8, 5))
     sns.histplot(data=data, x=x, hue=hue, stat="count", discrete=True, bins=14,
                  legend=False)
     plt.xticks(ticks= range(1, n), labels=xlabs, rotation=60, size=7)

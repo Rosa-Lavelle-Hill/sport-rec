@@ -32,6 +32,7 @@ order = y.nunique()
 X_and_y = pd.concat([X, y], axis=1)
 X_and_y.sort_values(by=["ID_new", "Index1"], inplace=True, axis=0)
 X_and_y.to_csv("Data/X_and_y_{}.csv".format(outcome))
+# ================================================================
 
 cat_names = list(meta.variable_value_labels[outcome].values())
 cat_nums = list(meta.variable_value_labels[outcome].keys())
@@ -83,6 +84,7 @@ plot_perc(data=X_and_y, x=outcome, hue=outcome, xlabs=very_short_names,
            order=cat_nums, leg_title=x_lab, label_dict=short_names_dict)
 
 # ------------------------------------------------------------------------------------------
+# Exploration...
 
 # Cluster
 df.dropna(axis=0, how="all", subset=goal_vars, inplace=True)

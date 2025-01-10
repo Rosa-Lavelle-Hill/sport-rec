@@ -9,7 +9,7 @@ from Functions.preprocessing import preprocess
 from fixed_params import outcome, multi_label, smote
 
 # Run options:
-use_pre_trained = True
+use_pre_trained = False
 test_run = True
 do_testset_evaluation = True
 
@@ -34,11 +34,17 @@ if test_run == True:
 else:
     t= ""
 
-optimised_pipes = prediction(outcome=outcome, df=df, test_run=test_run,
-                             use_pre_trained=use_pre_trained, smote=smote,
-                             start_string=start_string, t=t, multi_label=multi_label,
+optimised_pipes = prediction(outcome=outcome,
+                             df=df,
+                             test_run=test_run,
+                             use_pre_trained=use_pre_trained,
+                             smote=smote,
+                             start_string=start_string,
+                             t=t,
+                             multi_label=multi_label,
                              do_testset_evaluation=do_testset_evaluation,
-                             predict_probab=False)
+                             predict_probab=False
+                             )
 
 # (3) plot prediction results
 results_df = pd.read_csv("Results/Prediction/all_test_scores_{}{}{}.csv".format(outcome, start_string, t))
@@ -50,14 +56,17 @@ else:
 # todo: add option to turn off pred prob
 
 # (4) interpretation
-interpretation(outcome=outcome, df=df,
+interpretation(outcome=outcome,
+               df=df,
                optimised_pipes=optimised_pipes,
-               start_string=start_string, t=t,
+               start_string=start_string,
+               t=t,
                do_impurity_importance=True,
                do_permutation_importance=True,
                do_SHAP_importance=True,
                recalc_SHAP=False
                )
+
 end = dt.datetime.now()
 runtime = end - start
 print(f'Done. Run time: {runtime}')
