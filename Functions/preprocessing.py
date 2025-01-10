@@ -1,3 +1,4 @@
+import json
 import numpy as np
 import pandas as pd
 from fixed_params import categorical_features, goal_vars, x_lab, person_id, answer_id
@@ -63,9 +64,16 @@ def preprocess(df, outcome):
     very_short_names = list(very_short_names['0'])
     short_names = pd.read_csv("Data/Meta/short_outcome_names_{}.csv".format(outcome), index_col=[0])
     short_names = list(short_names['0'])
-    plot_count(data=df, x=outcome, hue=outcome, xlabs=very_short_names, leg_title=x_lab,
-               save_path="Outputs/Descriptives/Modelling_df/", save_name="y_hist",
-               xlab=x_lab, leg_labs=short_names, title="Distribution of outcome variable")
+
+    with open('Data/Dicts_and_Lists/cat_nums.json', 'r') as file:
+        cat_nums = json.load(file)
+    with open('Data/Dicts_and_Lists/short_names_dict.json', 'r') as file:
+        short_names_dict = json.load(file)
+
+    plot_count(data=df, x=outcome, hue=outcome, xlabs=very_short_names,
+               save_path="Outputs/Descriptives/", save_name="y_hist_{}".format(outcome),
+               xlab=x_lab, title="Distribution of outcome variable",
+               order=cat_nums, leg_title=x_lab, label_dict=short_names_dict)
 
     # recode cat vars:
     for var in categorical_features:
@@ -94,7 +102,7 @@ def preprocess(df, outcome):
 def check_cors(X, save_path, save_name):
     corr_iv_m = X.corr(method='pearson', min_periods=100).abs()
     # drop repetitious pairs (diagonals and below in matrix):
-    corr_iv = (corr_iv_m.where(np.triu(np.ones(corr_iv_m.shape), k=1).astype(np.bool))
+    corr_iv = (corr_iv_m.where(np.triu(np.ones(corr_iv_m.shape), k=1).astype(bool))
                .stack()
                .sort_values(ascending=False))
     # save as a df
@@ -115,7 +123,7 @@ def remove_cols(df, drop_cols):
 def get_preprocessed_col_names(X, pipe, cat_vars):
     numeric_features = X.drop(cat_vars, inplace=False, axis=1).columns
     dum_names = list(pipe.named_steps['preprocessor'].transformers_[1][1].named_steps['oh_encoder']
-                     .get_feature_names(cat_vars))
+                     .get_feature_names_out(cat_vars))
     num_names = list(X[numeric_features].columns.values)
     names = num_names + dum_names
     return names

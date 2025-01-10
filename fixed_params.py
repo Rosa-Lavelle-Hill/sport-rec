@@ -23,6 +23,7 @@ do_GB = False
 decimal_places = 2
 verbose = 2
 random_state = 93
+test_size = 0.2
 nfolds = 5
 imputer_max_iter = 10
 

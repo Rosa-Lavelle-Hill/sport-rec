@@ -318,8 +318,7 @@ def plot_forceSHAP_df(shap_vals_df, explainer, i, base_val, col_list, title,
     feature_names = shap_vals_df.columns
     explanation = shap.Explanation(values=shap_vals, base_values=base_val, data=shap_vals_df)
     shap.initjs()
-    expected_value = explainer.expected_value
-    shap.force_plot(expected_value, explanation.values, feature_names=feature_names, show=False)
+    shap.plots.force(explanation.base_values, explanation.values, feature_names=feature_names, show=False)
     plt.title(title)
     plt.tight_layout()
     plt.savefig(save_path + save_name + ".png")

@@ -8,11 +8,12 @@ from Functions.prediction import prediction
 from Functions.preprocessing import preprocess
 from fixed_params import outcome, multi_label, smote
 
+# Run options:
 use_pre_trained = True
-test_run = False
-do_testset_evaluation = False
+test_run = True
+do_testset_evaluation = True
 
-
+# Load data
 df = pd.read_csv("Data/X_and_y_{}.csv".format(outcome), index_col=[0])
 
 # (1) preprocess
@@ -25,7 +26,9 @@ if use_pre_trained == False:
     start_string = start.strftime('_%d_%b_%Y__%H.%M')
 else:
     # start_string = "_11_Jun_2023__07.44"
-    start_string = "_19_Aug_2023__20.50"
+    # start_string = "_19_Aug_2023__20.50"
+    start_string = "_09_Jan_2025__14.11"
+
 if test_run == True:
     t= "_test"
 else:

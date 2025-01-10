@@ -1,5 +1,7 @@
 import pandas as pd
 import shap
+import json
+import pickle
 import numpy as np
 from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
@@ -128,10 +130,11 @@ def interpretation(df, outcome, optimised_pipes,
                                    save_path="Results/Importance/Impurity/Plots/")
 
         if do_SHAP_importance == True:
-            n_features = 14
+            filename = f"Results/Importance/SHAP/{outcome}/SHAP_imp_{model_name}_{start_string}{t}.pkl"
+            shap_plot_save_path = f"Results/Importance/SHAP/{outcome}/Plots/"
+            n_features = X_train_p.shape[1]
             # for now, only do SHAP for RF
             if model_name == "RF":
-                shap_plot_save_path = f"Results/Importance/SHAP/{outcome}/Plots/"
                 if recalc_SHAP == True:
                     print('starting SHAP importance for model {}...'.format(model_name))
 
@@ -143,82 +146,46 @@ def interpretation(df, outcome, optimised_pipes,
                     for cat_num in range(len(df[outcome].unique())):
                         # Calculate SHAP values for the class-label combination
                         explainer = shap.TreeExplainer(opt_model.estimators_[cat_num])
-                        shap_values = explainer.shap_values(X_test_p, check_additivity=False)
+                        shap_values = explainer.shap_values(X_test_p, check_additivity=True)
 
-                        # Store SHAP values in the DataFrame
-                        shap_df = pd.DataFrame(shap_values[1], columns=feature_names)
+                        # extract SHAP vlaues for class 1 only
+                        shap_values_class1 = shap_values[:, :, 1]
+
+                        # Create a DataFrame from the SHAP values for class 1
+                        class_shap_df = pd.DataFrame(shap_values_class1, columns=feature_names)
 
                         # Save to enable reload
                         save_name = f"category_{cat_num}.csv"
-                        shap_df.to_csv(f"Results/Importance/SHAP/{outcome}/"+save_name)
+                        class_shap_df.to_csv(f"Results/Importance/SHAP/{outcome}/"+save_name)
+                        shap_dict[cat_num] = class_shap_df
 
-                        shap_dict[cat_num] = shap_df
+                        # # Demo individual shap plots for a few individuals
+                        # plot_type = "force"
+                        # # todo: calculate base value as mean of test set predictions/actual ratio of 0:1s
+                        # for i in range(1, 3):
+                        #     save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}_person{i}_{t}"
+                        #     base_val = 0.5
+                        #     cat_shap_df = shap_dict[cat_num]
+                        #     plot_forceSHAP_df(cat_shap_df, explainer, i, base_val, col_list=feature_names,
+                        #                       save_path=shap_plot_save_path,
+                        #                       save_name=save_name, title=f"Category {cat_num + 1}")
 
-                        # Demo individual shap plots for a few individuals
-                        plot_type = "force"
-                        # todo: calculate base value as mean of test set predictions/actual ratio of 0:1s
-
-                        for i in range(1, 3):
-                            save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}_person{i}_{t}"
-                            base_val = 0.5
-                            cat_shap_df = shap_dict[cat_num]
-                            plot_forceSHAP_df(cat_shap_df, explainer, i, base_val, col_list=feature_names,
-                                              save_path=shap_plot_save_path,
-                                              save_name=save_name, title=f"Category {cat_num + 1}")
-
-                    # Concatenate the DataFrames in the dictionary
-                    shap_long_df = pd.concat(shap_dict.values(), ignore_index=True)
-                    shap_long_df.columns = feature_names
-                    shap_long_df.to_csv(
-                        "Results/Importance/SHAP/{}/SHAP_imp_{}_{}{}.csv".format(outcome, model_name, start_string, t))
+                    # Save the dictionary as a pickle
+                    with open(filename, 'wb') as file:
+                        pickle.dump(shap_dict, file)
 
                 if recalc_SHAP == False:
-                    shap_dict = {}
-                    for cat_num in range(len(df[outcome].unique())):
-                        save_name = f"category_{cat_num}"
-                        shap_df = pd.read_csv(f"Results/Importance/SHAP/{outcome}/"+save_name+".csv", index_col=[0])
-                        shap_dict[cat_num] = shap_df
-                    shap_long_df = pd.read_csv("Results/Importance/SHAP/{}/SHAP_imp_{}_{}{}.csv".format(outcome, model_name, start_string, t),
-                                               index_col=[0])
+                    # load SHAP dict from file
+                    with open(filename, 'rb') as file:
+                        shap_dict = pickle.load(file)
 
-
-                # # calculate overall SHAP across all catgeories:
-                # # todo: need to creat a artificula long_X df
-                # X_test_p_df = pd.DataFrame(X_test_p, columns=feature_names)
-                # shap_array = cat_shap_df.values
-                #
-                # plot_type = "bar"
-                # plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
-                #              n_features=n_features, plot_type=plot_type,
-                #              save_path=shap_plot_save_path,
-                #              save_name="{}_SHAP_{}_nfeatures{}_{}{}.png".format(model_name, plot_type, n_features,
-                #                                                                 start_string, t))
-                #
-                # plot_type = "summary"
-                # plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
-                #              n_features=n_features, plot_type=None,
-                #              save_path=shap_plot_save_path,
-                #              save_name="{}_SHAP_{}_nfeatures{}_{}{}.png".format(model_name, plot_type, n_features,
-                #                                                                 start_string, t))
-                #
-                # plot_type = "violin"
-                # plot_SHAP_df(shap_array, X_df=X_test_p_df, col_list=feature_names,
-                #              n_features=n_features, plot_type=plot_type,
-                #              save_path=shap_plot_save_path,
-                #              save_name="{}_SHAP_{}_nfeatures{}_{}{}.png".format(model_name, plot_type, n_features,
-                #                                                                 start_string, t))
-
-
-
-                # Get SHAP output for each category separately:
+                # Get SHAP plot for each category separately:
                 X_test_p_df = pd.DataFrame(X_test_p, columns=feature_names)
+                # for each outcome category
                 for cat_num in range(0, len(df[outcome].unique())):
                     cat_shap_df = shap_dict[cat_num]
+                    # get shap values:
                     shap_array = cat_shap_df.values
-                    # shap.summary_plot(shap_array, X_test_p_df)
-                    # # todo: this works, now iput to function^
-
-                    shap_plot_save_path = f"Results/Importance/SHAP/{outcome}/Plots/"
 
                     plot_type = "bar"
                     save_name = f"SHAP{start_string}_{model_name}_{plot_type}_category_{cat_num}{t}"
@@ -240,9 +207,6 @@ def interpretation(df, outcome, optimised_pipes,
                               n_features=n_features, plot_type=plot_type,
                               save_path=shap_plot_save_path,
                               save_name=save_name, title=f"Category {cat_num +1}")
-
-                        # plot_SHAP_force(i=1, X_test=X_test_p_df, model=opt_model, save_path=shap_plot_save_path,
-                        #                 save_name=save_name, pred_model='rf', title=f"Category {cat_num +1}, person {i}")
 
 
                     # # if interaction_plots == True:

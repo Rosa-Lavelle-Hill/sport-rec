@@ -1,6 +1,7 @@
 import pyreadstat
 import pandas as pd
 import numpy as np
+import json
 import matplotlib.pyplot as plt
 import seaborn as sns
 # Missings: an empty variable means that the person did not give an answer to this item.
@@ -15,7 +16,7 @@ from Functions.plotting import plot_count, plot_perc, plot_by_var, plot_clust, p
 df, meta = pyreadstat.read_sav('Data/FinalDaten_BMZI_W1_W2_long.sav')
 
 # predicting cat sport b from goal variables
-other_vars = ['sex', 'age', 'edu', 'sport_min_kat']
+usother_vars = ['sex', 'age', 'edu', 'sport_min_kat']
 X = df[[person_id] + [answer_id] + other_vars + goal_vars]
 
 # code "-999" as na
@@ -34,6 +35,9 @@ X_and_y.to_csv("Data/X_and_y_{}.csv".format(outcome))
 
 cat_names = list(meta.variable_value_labels[outcome].values())
 cat_nums = list(meta.variable_value_labels[outcome].keys())
+with open('Data/Dicts_and_Lists/cat_nums.json', 'w') as file:
+    json.dump(cat_nums, file, indent=4)
+
 short_names = []
 very_short_names = []
 for name in cat_names:
@@ -46,6 +50,12 @@ for name in cat_names:
 numbers = range(1, 11)
 very_short_names_dict = dict(zip(numbers, very_short_names))
 short_names_dict = dict(zip(numbers, short_names))
+
+with open('Data/Dicts_and_Lists/short_names_dict.json', 'w') as file:
+    json.dump(short_names_dict, file, indent=4)
+
+with open('Data/Dicts_and_Lists/very_short_names_dict.json', 'w') as file:
+    json.dump(very_short_names_dict, file, indent=4)
 
 save_meta = "Data/Meta/"
 pd.DataFrame(cat_names).to_csv(save_meta + "full_outcome_names_{}.csv".format(outcome))
@@ -72,7 +82,6 @@ plot_perc(data=X_and_y, x=outcome, hue=outcome, xlabs=very_short_names,
            xlab=x_lab, title="Distribution of outcome variable (%)",
            order=cat_nums, leg_title=x_lab, label_dict=short_names_dict)
 
-# todo: reverse colours on legend
 # ------------------------------------------------------------------------------------------
 
 # Cluster

@@ -9,7 +9,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 
 from Functions.plotting import plot_confusion_matrix
 from fixed_params import decimal_places, single_label_scoring, multi_label_scoring, verbose, random_state, nfolds,\
-    categorical_features, do_Enet, do_GB
+    categorical_features, do_Enet, do_GB, test_size
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from Functions.pipeline import construct_pipelines, construct_smote_pipelines, construct_dummy_pipelines
@@ -79,7 +79,7 @@ def prediction(outcome, df,
     # split data into train and test splits (can only stratify with single label)
     if multi_label == True:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
-                                                            test_size=0.2, shuffle=True)
+                                                            test_size=test_size, shuffle=True)
         if smote == True:
             # Find indices of categorical features
             categorical_features_indices = [X_train.columns.get_loc(col_name) for col_name in
@@ -91,7 +91,7 @@ def prediction(outcome, df,
 
     else:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
-                                                            test_size=0.2, shuffle=True, stratify=y)
+                                                            test_size=test_size, shuffle=True, stratify=y)
 
     best_params_dict = {}
     params_save = "Results/Best_Params/"
