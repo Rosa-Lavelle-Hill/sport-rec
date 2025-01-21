@@ -16,7 +16,7 @@ multi_label_scoring = make_scorer(f1_score, average="micro", zero_division=0)
 select_model_score = "weighted_f1"
 
 multi_label = True
-smote = False
+smote = True
 # predict_probab = True
 
 decimal_places = 3

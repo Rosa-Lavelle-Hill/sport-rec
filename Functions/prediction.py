@@ -95,14 +95,14 @@ def prediction(outcome,
         y_train_df.to_csv("Data/Modelling/MultiLab/NoSMOTE/y_train.csv", index=False)
         y_test_df.to_csv("Data/Modelling/MultiLab/NoSMOTE/y_test.csv", index=False)
 
-        if smote == True:
-            # Find indices of categorical features
-            categorical_features_indices = [X_train.columns.get_loc(col_name) for col_name in
-                                            categorical_features]
-
-            # Apply SMOTENC to training data
-            smote = SMOTENC(sampling_strategy='auto', categorical_features=categorical_features_indices, random_state=42)
-            X_train, y_train = smote.fit_resample(X_train, y_train)
+        # if smote == True:
+        #     # Find indices of categorical features
+        #     categorical_features_indices = [X_train.columns.get_loc(col_name) for col_name in
+        #                                     categorical_features]
+        #
+        #     # Apply SMOTENC to training data
+        #     smote = SMOTENC(sampling_strategy='auto', categorical_features=categorical_features_indices, random_state=42)
+        #     X_train, y_train = smote.fit_resample(X_train, y_train)
 
     else:
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=random_state,
@@ -112,15 +112,29 @@ def prediction(outcome,
     best_params_dict = {}
     params_save = "Results/Best_Params/"
     if use_pre_trained == False:
+        # test params:
         if test_run == True:
             if multi_label == True:
-                from Params.multi_label.test_grids import log_params, enet_params, rf_params, gb_params
-            else:
+                if smote == True:
+                    from Params.multi_label.test_grids import (log_params_sm as log_params,
+                                                               enet_params_sm as enet_params,
+                                                               rf_params_sm as rf_params,
+                                                               gb_params_sm as gb_params)
+                if smote == False:
+                    from Params.multi_label.test_grids import log_params, enet_params, rf_params, gb_params
+            if multi_label == False:
                 from Params.test_grids import log_params, enet_params, rf_params, gb_params
-        else:
+        # actual params:
+        if test_run == False:
             if multi_label == True:
-                from Params.multi_label.grids import log_params, enet_params, rf_params, gb_params
-            else:
+                if smote == True:
+                    from Params.multi_label.grids import (log_params_sm as log_params,
+                                                            enet_params_sm as enet_params,
+                                                            rf_params_sm as rf_params,
+                                                            gb_params_sm as gb_params)
+                if smote == False:
+                    from Params.multi_label.grids import log_params, enet_params, rf_params, gb_params
+            if multi_label == True:
                 from Params.grids import log_params, enet_params, rf_params, gb_params
 
         param_list = [log_params, enet_params, rf_params, gb_params]

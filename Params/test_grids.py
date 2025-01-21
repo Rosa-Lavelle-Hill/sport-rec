@@ -13,3 +13,4 @@ log_params = {}
 
 enet_params = {"classifier__alpha": [0.01],
               "classifier__l1_ratio": [0.5]}
+

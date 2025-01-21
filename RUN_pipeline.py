@@ -9,9 +9,9 @@ from Functions.preprocessing import preprocess
 from fixed_params import outcome, multi_label, smote, select_model_score
 
 # Run options:
-use_pre_trained = True
-test_run = False
-do_testset_evaluation = False
+use_pre_trained = False
+test_run = True
+do_testset_evaluation = True
 only_best_model = True
 # ==========================
 do_Enet = True

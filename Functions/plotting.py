@@ -148,7 +148,7 @@ def plot_roc(probs, y_test, model_name):
 def plot_results(y, data, colour, save_path, save_name,
                                xlab, ylab, title, x_ticks, legend=False,
                                fontsize=12, legend_pos="lower right"):
-    palette = ["thistle", "plum", "cornflowerblue", "coral", "mediumaquamarine", "peru", "khaki"]
+    palette = ["plum", "cornflowerblue", "coral", "mediumaquamarine", "peru", "khaki", "lightsteelblue"]
 
     sns.set_palette(palette)
     fig, ax = plt.subplots()
@@ -160,7 +160,7 @@ def plot_results(y, data, colour, save_path, save_name,
     data.rename(columns={'Unnamed: 0': 'Model'}, inplace=True)
 
     g=sns.barplot(x="Model", y=y, data=data, hue=colour, dodge=False,
-                  palette=sns.color_palette(palette, 6))
+                  palette=sns.color_palette(palette, 7))
 
     plt.title(title, fontsize=fontsize)
     plt.xlabel(xlab, fontsize=fontsize)
