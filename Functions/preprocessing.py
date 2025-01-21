@@ -147,3 +147,34 @@ def get_preprocessed_col_names(X, pipe, cat_vars):
     num_names = list(X[numeric_features].columns.values)
     names = num_names + dum_names
     return names
+
+
+def get_preprocessed_col_names_sm(X, pipe, cat_vars):
+    """
+    X: original DataFrame before preprocessing
+    pipe: a fitted MultiOutputClassifier(...(imbpipeline([...])))
+    cat_vars: list of categorical columns used in one-hot encoding
+    """
+
+    # 1) After pipe.fit(X, y), each output column has a fitted pipeline in pipe.estimators_
+    # We'll just use the first fitted pipeline:
+    fitted_pipeline = pipe.estimators_[0]
+
+    # 2) Access the preprocessor inside that pipeline
+    preprocessor = fitted_pipeline.named_steps['preprocessor']
+
+    # 3) Identify numeric feature names (assume all non-categorical are numeric)
+    numeric_features = [col for col in X.columns if col not in cat_vars]
+
+    # 4) For a ColumnTransformer with two parts: [0] numeric, [1] categorical
+    cat_pipeline = preprocessor.transformers_[1][1]  # or find the correct index
+    oh_encoder = cat_pipeline.named_steps['oh_encoder']
+
+    # 5) Get the OHE feature names
+    ohe_names = oh_encoder.get_feature_names_out(cat_vars)
+
+    # 6) Combine numeric + OHE names
+    names = list(numeric_features) + list(ohe_names)
+
+    return names
+

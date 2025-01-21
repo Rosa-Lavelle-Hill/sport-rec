@@ -24,7 +24,7 @@ rf_params_sm = {"estimator__classifier__min_samples_split": [2],
 gb_params_sm = {"estimator__classifier__min_samples_leaf": [2],
              "estimator__classifier__max_depth": [5],
              "estimator__classifier__random_state": [93],
-             "estimator__classifier__max_iter": [10]}
+             "estimator__classifier__n_estimators": [10]}
 
 log_params_sm = {"estimator__classifier__penalty": [None]}
 

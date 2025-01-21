@@ -8,10 +8,10 @@ from sklearn.model_selection import train_test_split
 
 from Functions.plotting import plot_impurity, plot_permutation, plot_SHAP, plot_impurity_ml, heatmap_importance, \
     plot_SHAP_df, plot_SHAP_force, plot_forceSHAP_df
-from fixed_params import decimal_places, multi_label_scoring, single_label_scoring, verbose,\
-    random_state, categorical_features, multi_label
+from fixed_params import decimal_places, multi_label_scoring, single_label_scoring, verbose, \
+    random_state, categorical_features, multi_label, smote
 from fixed_params import n_shap_features as n_features
-from Functions.preprocessing import remove_cols, get_preprocessed_col_names
+from Functions.preprocessing import remove_cols, get_preprocessed_col_names, get_preprocessed_col_names_sm
 from sklearn.preprocessing import MultiLabelBinarizer
 
 def interpretation(df,
@@ -65,7 +65,10 @@ def interpretation(df,
     for model_name in model_names:
 
         pipe = optimised_pipes[model_name]
-        feature_names = get_preprocessed_col_names(X, pipe, cat_vars=categorical_features)
+        if smote == False:
+            feature_names = get_preprocessed_col_names(X, pipe, cat_vars=categorical_features)
+        if smote == True:
+            feature_names = get_preprocessed_col_names_sm(X, pipe, cat_vars=categorical_features)
         with open("Data/Dicts_and_Lists/column_names.json", 'r') as file:
             feature_names_dict = json.load(file)
         nice_feature_names = [feature_names_dict[key] for key in feature_names]
@@ -97,13 +100,24 @@ def interpretation(df,
 
         if (do_impurity_importance == True) or (do_SHAP_importance == True):
             # fit to and transform train
-            preprocessor = pipe.named_steps['preprocessor']
-            opt_model = pipe.named_steps.ml
-            X_train_p = preprocessor.fit_transform(X_train)
-            opt_model.fit(X_train_p, y_train)
-            # transform test
-            X_test_p = preprocessor.transform(X_test)
-            opt_model.fit(X_test_p, y_test)
+            if smote == False:
+                preprocessor = pipe.named_steps['preprocessor']
+                opt_model = pipe.named_steps.ml
+
+                X_train_p = preprocessor.transform(X_train)
+                opt_model.fit(X_train_p, y_train)
+
+            if smote == True:
+                fitted_pipeline = pipe.estimators_[0]
+                preprocessor = fitted_pipeline.named_steps['preprocessor']
+                opt_model = fitted_pipeline.named_steps['classifier']
+
+                X_train_p = preprocessor.fit_transform(X_train)
+                #     todo: do I need this step for SHAP or can I directly use the ml pipeline?
+
+                # transform test
+                X_test_p = preprocessor.transform(X_test)
+                opt_model.fit(X_test_p, y_test)
 
         # Impurity-based Importance:
         if do_impurity_importance == True:

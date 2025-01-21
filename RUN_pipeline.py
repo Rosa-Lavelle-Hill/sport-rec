@@ -14,8 +14,8 @@ test_run = True
 do_testset_evaluation = True
 only_best_model = True
 # ==========================
-do_Enet = True
-do_GB = True
+do_Enet = False
+do_GB = False
 
 if __name__ == "__main__":
     # Load data
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                    start_string=start_string,
                    t=t,
                    do_impurity_importance=False,
-                   do_permutation_importance=False,
+                   do_permutation_importance=True,
                    do_SHAP_importance=True,
                    recalc_SHAP=True,
                    model_names=model_names,

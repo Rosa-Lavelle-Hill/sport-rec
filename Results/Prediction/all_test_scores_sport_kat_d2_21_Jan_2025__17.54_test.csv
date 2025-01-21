@@ -1,0 +1,5 @@
+,Dummy_MF,Dummy_Zero,Dummy_Random,Dummy_Stratified,Log,Enet,RF,GB
+micro_precision,0.51,0.0,0.19,0.29,0.29,0.29,0.3,0.31
+micro_f1,0.36,0.0,0.27,0.29,0.41,0.41,0.4,0.41
+weighted_precision,0.14,0.0,0.29,0.3,0.39,0.39,0.39,0.4
+weighted_f1,0.18,0.0,0.33,0.29,0.46,0.46,0.46,0.46
