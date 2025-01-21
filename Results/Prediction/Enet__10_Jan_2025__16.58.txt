@@ -1,0 +1,8 @@
+Enet:
+Training done. Time taken: 0:00:45.271809
+params tried:
+{'ml__estimator__min_samples_split': [2, 4, 6], 'ml__estimator__max_depth': [5, 10, 15], 'ml__estimator__n_estimators': [500], 'ml__estimator__random_state': [93], 'ml__estimator__max_features': [0.8, 1]}
+
+Best training make_scorer(f1_score, response_method='predict', average=micro, zero_division=0) score: 0.363. Best model params:
+{'ml__estimator__C': 1, 'ml__estimator__l1_ratio': 0.2, 'ml__estimator__max_iter': 1000}.
+

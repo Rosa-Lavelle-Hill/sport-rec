@@ -13,5 +13,6 @@ gb_params = {"ml__estimator__min_samples_leaf": [2, 4, 6],
 
 log_params = {"ml__estimator__penalty": [None]}
 
-enet_params = {"ml__estimator__C":[0.001, 0.01, 0.1, 1, 10, 100, 1000],
-              "ml__estimator__l1_ratio": [0.2, 0.5, 0.8]}
+enet_params = {"ml__estimator__C":[0.001, 0.01, 0.5, 1], # Inverse of regularization strength; must be a positive float. Smaller values specify stronger regularization.
+              "ml__estimator__l1_ratio": [0.2, 0.5, 0.8],
+              "ml__estimator__max_iter": [1000]}

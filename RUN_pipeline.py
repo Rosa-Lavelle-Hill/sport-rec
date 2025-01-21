@@ -9,9 +9,9 @@ from Functions.preprocessing import preprocess
 from fixed_params import outcome, multi_label, smote, select_model_score
 
 # Run options:
-use_pre_trained = False
+use_pre_trained = True
 test_run = False
-do_testset_evaluation = True
+do_testset_evaluation = False
 only_best_model = True
 # ==========================
 do_Enet = True
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     else:
         # start_string = "_11_Jun_2023__07.44"
         # start_string = "_19_Aug_2023__20.50"
-        start_string = "_09_Jan_2025__14.11"
+        start_string = "_10_Jan_2025__17.00"
 
     if test_run == True:
         t= "_test"

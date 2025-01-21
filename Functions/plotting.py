@@ -148,7 +148,7 @@ def plot_roc(probs, y_test, model_name):
 def plot_results(y, data, colour, save_path, save_name,
                                xlab, ylab, title, x_ticks, legend=False,
                                fontsize=12, legend_pos="lower right"):
-    palette = ["plum", "cornflowerblue", "coral", "mediumaquamarine", "peru", "khaki"]
+    palette = ["thistle", "plum", "cornflowerblue", "coral", "mediumaquamarine", "peru", "khaki"]
 
     sns.set_palette(palette)
     fig, ax = plt.subplots()
@@ -471,19 +471,29 @@ def run_plots_multilabel(results_df, start_string, t, do_Enet, do_GB):
     results_df.rename(columns={"Unnamed: 0": "Model"}, inplace=True)
     save_path = "Results/Prediction/Plots/"
     save_name = "all_prediction_results"
-    x_ticks = ["Dummy Most Frequent", "Dummy Constant: 0",
-               "Dummy Random",
-               "Dummy Stratified", "Logistic Regression",
-               "Elastic Net", "Random Forest", "Gradient Boosting"]
-    if do_Enet == False:
-        x_ticks.remove("Elastic Net")
-    if do_GB == False:
-        x_ticks.remove("Gradient Boosting")
 
     micro_precision = results_df[results_df.Model == "micro_precision"]
     micro_f1 = results_df[results_df.Model == "micro_f1"]
     weighted_precision = results_df[results_df.Model == "weighted_precision"]
     weighted_f1 = results_df[results_df.Model == "weighted_f1"]
+
+    plot_cols = ["Model", "Dummy_Random", "Dummy_Stratified", "Dummy_MF", "Log", "Enet", "RF", "GB"]
+
+    x_ticks = ["Dummy Most Frequent",
+               "Dummy Random",
+               "Dummy Stratified", "Logistic Regression",
+               "Elastic Net", "Random Forest", "Gradient Boosting"]
+    if do_Enet == False:
+        x_ticks.remove("Elastic Net")
+        plot_cols.remove("Enet")
+    if do_GB == False:
+        x_ticks.remove("Gradient Boosting")
+        plot_cols.remove("GB")
+
+    micro_f1 = micro_f1[plot_cols]
+    weighted_f1 = weighted_f1[plot_cols]
+    weighted_precision = weighted_precision[plot_cols]
+    micro_precision = micro_precision[plot_cols]
 
     save_name = "all_predict_micro_precision_{}{}".format(start_string, t)
     plot_results(y="micro_precision", data=micro_precision, colour='Model',
