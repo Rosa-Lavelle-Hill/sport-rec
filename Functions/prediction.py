@@ -134,7 +134,7 @@ def prediction(outcome,
                                                             gb_params_sm as gb_params)
                 if smote == False:
                     from Params.multi_label.grids import log_params, enet_params, rf_params, gb_params
-            if multi_label == True:
+            if multi_label == False:
                 from Params.grids import log_params, enet_params, rf_params, gb_params
 
         param_list = [log_params, enet_params, rf_params, gb_params]
@@ -165,9 +165,7 @@ def prediction(outcome,
             else:
                 # preserve the distribution of data across outcome classes
                 scoring = single_label_scoring
-                kfold = StratifiedKFold(n_splits=nfolds,
-                                                   shuffle=True,
-                                                   random_state=random_state)
+                kfold = StratifiedKFold(n_splits=nfolds, shuffle=True, random_state=random_state)
 
             grid_search = GridSearchCV(estimator=pipe,
                                        param_grid=params,
@@ -175,7 +173,20 @@ def prediction(outcome,
                                        scoring=scoring,
                                        verbose=verbose,
                                        refit=False,
-                                       n_jobs=2)
+                                       n_jobs=2,
+                                       error_score="raise")
+
+            # count distribution of class labels within each fold:
+            if model_name == "Log":
+                for fold, (train_idx, val_idx) in enumerate(kfold.split(X_train, y_train)):
+                    y_train_fold = y_train[train_idx]
+                    print(f"\nFold {fold + 1}:")
+                    for label_idx in range(y_train.shape[1]):
+                        label = f"Label_{label_idx}"
+                        count = np.sum(y_train_fold[:, label_idx])
+                        total = y_train_fold.shape[0]
+                        proportion = (count / total) * 100
+                        print(f"  {label}: {count}/{total} positives ({proportion:.2f}%)")
 
             # start timer
             grid_start = dt.datetime.now()

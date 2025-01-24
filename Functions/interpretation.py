@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from Functions.plotting import plot_impurity, plot_permutation, plot_SHAP, plot_impurity_ml, heatmap_importance, \
     plot_SHAP_df, plot_SHAP_force, plot_forceSHAP_df
 from fixed_params import decimal_places, multi_label_scoring, single_label_scoring, verbose, \
-    random_state, categorical_features, multi_label, smote
+    random_state, categorical_features, multi_label, smote, n_permutations
 from fixed_params import n_shap_features as n_features
 from Functions.preprocessing import remove_cols, get_preprocessed_col_names, get_preprocessed_col_names_sm
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -78,7 +78,7 @@ def interpretation(df,
 
             print('starting permutation importance for model {}...'.format(model_name))
             pipe.fit(X_train, y_train)
-            result = permutation_importance(pipe, X_test, y_test, n_repeats=1, random_state=93, n_jobs=2)
+            result = permutation_importance(pipe, X_test, y_test, n_repeats=n_permutations, random_state=93, n_jobs=2)
 
             perm_importances = result.importances_mean
             vars = X.columns.to_list()

@@ -13,7 +13,6 @@ answer_id = "Index1"
 
 single_label_scoring = "f1_micro"
 multi_label_scoring = make_scorer(f1_score, average="micro", zero_division=0)
-select_model_score = "weighted_f1"
 
 multi_label = True
 smote = True
@@ -23,9 +22,10 @@ decimal_places = 3
 verbose = 2
 random_state = 93
 test_size = 0.2
-nfolds = 5
+nfolds = 3 # so enough positive examples of smaller categories in each fold
 imputer_max_iter = 10
 n_shap_features = 17
+n_permutations = 3
 
 categorical_features = ['edu', 'sex', 'sport_min_kat']
 goal_vars = ['Zind_fitheal', 'Zind_figap', 'Zind_disstre', 'Zind_actenj', 'Zind_compperf', 'Zind_aes', 'Zind_con']
