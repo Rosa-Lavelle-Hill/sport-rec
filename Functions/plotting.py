@@ -477,7 +477,7 @@ def run_plots_multilabel(results_df, start_string, t, do_Enet, do_GB):
     weighted_precision = results_df[results_df.Model == "weighted_precision"]
     weighted_f1 = results_df[results_df.Model == "weighted_f1"]
 
-    plot_cols = ["Model", "Dummy_Random", "Dummy_Stratified", "Dummy_MF", "Log", "Enet", "RF", "GB"]
+    plot_cols = ["Model", "Dummy_MF", "Dummy_Random", "Dummy_Stratified", "Log", "Enet", "RF", "GB"]
 
     x_ticks = ["Dummy Most Frequent",
                "Dummy Random",

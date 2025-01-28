@@ -248,10 +248,10 @@ def prediction(outcome,
                     output_dict=True,
                     zero_division=0.0
                 )
-                test_scores[dum_name] = {"micro_precision": round(dummy_results_dict['micro avg']['precision'], 2),
-                                         "micro_f1": round(dummy_results_dict['micro avg']['f1-score'], 2),
-                                         "weighted_precision": round(dummy_results_dict['weighted avg']['precision'], 2),
-                                         "weighted_f1": round(dummy_results_dict['weighted avg']['f1-score'], 2)}
+                test_scores[dum_name] = {"micro_precision": round(dummy_results_dict['micro avg']['precision'], 3),
+                                         "micro_f1": round(dummy_results_dict['micro avg']['f1-score'], 3),
+                                         "weighted_precision": round(dummy_results_dict['weighted avg']['precision'], 3),
+                                         "weighted_f1": round(dummy_results_dict['weighted avg']['f1-score'], 3 )}
 
     # Test ML Models =========================================================================================
     optimised_pipes = {}
@@ -321,10 +321,10 @@ def prediction(outcome,
                       str(m_cm), file=open(save_file, "a"))
 
                 test_scores[model_name] = {"F1_weighted": test_score_f1_weighted}
-                test_scores[model_name] = {"micro_precision": round(results_dict['micro avg']['precision'],2),
-                                         "micro_f1": round(results_dict['micro avg']['f1-score'], 2),
-                                         "weighted_precision": round(results_dict['weighted avg']['precision'], 2),
-                                         "weighted_f1": round(results_dict['weighted avg']['f1-score'], 2)}
+                test_scores[model_name] = {"micro_precision": round(results_dict['micro avg']['precision'], 3),
+                                         "micro_f1": round(results_dict['micro avg']['f1-score'], 3),
+                                         "weighted_precision": round(results_dict['weighted avg']['precision'], 3),
+                                         "weighted_f1": round(results_dict['weighted avg']['f1-score'], 3)}
 
         if predict_probab == True:
             if multi_label == True:
