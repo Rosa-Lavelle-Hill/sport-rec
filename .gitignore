@@ -26,6 +26,8 @@ Data/*
 *.doc
 *.sav
 
+# too large
+Results/Fitted_Models/*.joblib
 
 # C extensions
 *.so
