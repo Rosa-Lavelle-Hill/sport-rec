@@ -95,7 +95,7 @@ if __name__ == "__main__":
                    do_impurity_importance=False,
                    do_permutation_importance=True,
                    do_SHAP_importance=True,
-                   recalc_SHAP=True,
+                   recalc_SHAP=False,
                    model_names=model_names,
                    best_model=best_model
                    )

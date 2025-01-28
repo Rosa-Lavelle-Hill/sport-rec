@@ -153,14 +153,14 @@ def interpretation(df,
             filename = f"Results/Importance/SHAP/{outcome}/SHAP_imp_{model_name}_{start_string}{t}.pkl"
             shap_plot_save_path = f"Results/Importance/SHAP/{outcome}/Plots/"
 
+            #  SHAP plot for each category separately:
+            with open("Data/Dicts_and_Lists/short_names_dict.json", 'r') as file:
+                short_names_dict = json.load(file)
+
             # for now, only do SHAP for RF or GB
             if (model_name == "RF") or (model_name == "GB"):
                 if recalc_SHAP == True:
                     print('starting SHAP importance for model {}...'.format(model_name))
-
-                    #  SHAP plot for each category separately:
-                    with open("Data/Dicts_and_Lists/short_names_dict.json", 'r') as file:
-                        short_names_dict = json.load(file)
 
                     # Loop through each class's estimator
                     shap_dict = {}
@@ -271,7 +271,8 @@ def interpretation(df,
                             shap_values[0],
                             np.round(datapoint_p, 2),
                             feature_names=feature_names,
-                            matplotlib=True
+                            matplotlib=True,
+                            show=False
                         )
                         save_path_force = "Results/Importance/SHAP/sport_kat_d2/Plots/Force_examples/"
                         plt.savefig(f"{save_path_force}{model_name}_{start_string}{t}_cat{cat_num}_datapoint_{person_num}.png",
@@ -279,8 +280,6 @@ def interpretation(df,
                         plt.clf()
                         plt.cla()
                         plt.close()
-
-
 
                     # # if interaction_plots == True:
                     #     if only_df1 == True:
