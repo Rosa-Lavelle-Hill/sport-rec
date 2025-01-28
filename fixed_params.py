@@ -26,7 +26,7 @@ random_state = 93
 test_size = 0.2
 nfolds = 3 # so enough positive examples of smaller categories in each fold
 imputer_max_iter = 10
-n_shap_features = 17
+n_shap_features = 15
 n_permutations = 3
 
 categorical_features = ['edu', 'sex', 'sport_min_kat']

@@ -158,12 +158,13 @@ def interpretation(df,
                 if recalc_SHAP == True:
                     print('starting SHAP importance for model {}...'.format(model_name))
 
-                    # Create a DataFrame to store SHAP values
-                    shap_df = pd.DataFrame(columns=['Class', 'Label', 'Feature', 'SHAP Value'])
+                    #  SHAP plot for each category separately:
+                    with open("Data/Dicts_and_Lists/short_names_dict.json", 'r') as file:
+                        short_names_dict = json.load(file)
 
                     # Loop through each class's estimator
                     shap_dict = {}
-                    for index, cat_num in enumerate(range(len(df[outcome].unique()))):
+                    for index, cat_num in enumerate(list(short_names_dict.keys())):
 
                         print(f"Generating SHAP values for category {cat_num}")
 
@@ -207,16 +208,12 @@ def interpretation(df,
                     with open(filename, 'rb') as file:
                         shap_dict = pickle.load(file)
 
-                #  SHAP plot for each category separately:
-                with open("Data/Dicts_and_Lists/short_names_dict.json", 'r') as file:
-                    short_names_dict = json.load(file)
-
                 # for each outcome category
                 for index, cat_num in enumerate(list(short_names_dict.keys())):
                     print(f"Plotting SHAP values for category {cat_num}")
 
                     # Access the fitted pipeline for the current label
-                    fitted_pipeline = pipe.estimators_[cat_num]
+                    fitted_pipeline = pipe.estimators_[index]
 
                     # Access the preprocessor and classifier
                     preprocessor = fitted_pipeline.named_steps['preprocessor']
@@ -228,7 +225,7 @@ def interpretation(df,
                     cat_name = short_names_dict[cat_num]
 
                     # get shap values df and array
-                    cat_shap_df = shap_dict[index]
+                    cat_shap_df = shap_dict[cat_num]
                     shap_array = cat_shap_df.values
 
                     plot_type = "bar"
@@ -257,7 +254,7 @@ def interpretation(df,
                         person_num = 0
 
                         # Select datapoint and reshape it to 2D
-                        datapoint = X_test[person_num].reshape(1, -1)
+                        datapoint = X_test.iloc[[person_num]]
 
                         # Transform the single datapoint
                         datapoint_p = preprocessor.transform(datapoint)
@@ -270,9 +267,9 @@ def interpretation(df,
 
                         shap.initjs()
                         shap.force_plot(
-                            explainer.expected_value[1],  # Expected value for the positive class
-                            shap_values[1][0],  # SHAP values for datapoint 0, positive class
-                            datapoint_p,
+                            explainer.expected_value,
+                            shap_values[0],
+                            np.round(datapoint_p, 2),
                             feature_names=feature_names,
                             matplotlib=True
                         )
