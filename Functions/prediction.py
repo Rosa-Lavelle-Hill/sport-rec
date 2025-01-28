@@ -2,9 +2,10 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import joblib
+from joblib import dump, load
 from imblearn.over_sampling import SMOTENC
 from sklearn.dummy import DummyClassifier
-from sklearn.metrics import confusion_matrix, classification_report, multilabel_confusion_matrix
+from sklearn.metrics import confusion_matrix, classification_report, multilabel_confusion_matrix, f1_score
 from sklearn.preprocessing import MultiLabelBinarizer
 
 from Functions.plotting import plot_confusion_matrix
@@ -23,11 +24,13 @@ def prediction(outcome,
                use_pre_trained,
                smote,
                multi_label,
-               do_testset_evaluation,
+               do_testset_evaluation, # only runs if not using a pre-optimised model, otherwise loads results df
                predict_probab,
                do_Enet,
                do_GB,
                do_GB_only=False,
+               dump_fitted_model=True,
+               load_fitted_model=True
                ):
 
     # redefine X and y
@@ -199,6 +202,14 @@ def prediction(outcome,
 
             best_params = grid_search.best_params_
             joblib.dump(best_params, params_save + '{}_{}{}{}.pkl'.format(outcome, model_name, start_string, t), compress=1)
+
+            # dump fitted model
+            if dump_fitted_model == True:
+                pipe.set_params(**best_params)
+                pipe.fit(X_train, y_train)
+                model_save = "Results/Fitted_Models/"
+                joblib.dump(pipe, f'{model_save}{outcome}_{model_name}{start_string}{t}.joblib', compress=1)
+
             best_train_score = round(abs(grid_search.best_score_), decimal_places)
             print("params tried:\n{}\n".format(rf_params), file=open(save_file, "a"))
 
@@ -219,10 +230,10 @@ def prediction(outcome,
 
 
     # Test Baseline Models =========================================================================================
-    if do_testset_evaluation == True:
-        # todo: put at end? do once!****
+    if (do_testset_evaluation == True):
 
         test_scores = {}
+        all_base_results = {}
         print("Evaluating performance on test set of baseline models")
 
         pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat = construct_dummy_pipelines(numeric_features_index,
@@ -252,28 +263,43 @@ def prediction(outcome,
                                          "micro_f1": round(dummy_results_dict['micro avg']['f1-score'], 3),
                                          "weighted_precision": round(dummy_results_dict['weighted avg']['precision'], 3),
                                          "weighted_f1": round(dummy_results_dict['weighted avg']['f1-score'], 3 )}
+                all_base_results[dum_name] = dummy_results_dict
 
-    # Test ML Models =========================================================================================
-    optimised_pipes = {}
-    for model_name, best_model_params, pipe in zip(model_names, best_params_dict, pipes):
+        # save baselines per category to plot later
+        all_base_results = pd.DataFrame.from_dict(all_base_results)
+        all_base_results.to_csv("Results/Prediction/Baseline_per_category/all_base_scores_{}{}{}.csv".format(outcome, start_string, t))
 
-        if do_GB_only == True:
-            if (model_name != "GB"):
-                continue
+        # Test ML Models =========================================================================================
 
-        save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)
-        best_model_param_values = best_params_dict[model_name]
-
-        # set pipeline to use best params
-        pipe.set_params(**best_model_param_values)
-        optimised_pipes[model_name]=pipe
-
-        # fit best pipeline to training data
-        pipe.fit(X_train, y_train)
-
-        # Test on Hold-out Data:
-        if do_testset_evaluation == True:
+        optimised_pipes = {}
+        for model_name, best_model_params, pipe in zip(model_names, best_params_dict, pipes):
             print("Evaluating performance on test set for {}".format(model_name))
+
+            if do_GB_only == True:
+                if (model_name != "GB"):
+                    continue
+
+            save_file = "Results/Prediction/{}_{}{}.txt".format(model_name, start_string, t)
+
+            if load_fitted_model == False:
+                best_model_param_values = best_params_dict[model_name]
+
+                # set pipeline to use best params
+                pipe.set_params(**best_model_param_values)
+                optimised_pipes[model_name]=pipe
+
+                # fit best pipeline to training data
+                pipe.fit(X_train, y_train)
+
+                # dump fitted model
+                if dump_fitted_model == True:
+                    model_save = "Results/Fitted_Models/"
+                    joblib.dump(pipe, f'{model_save}{outcome}_{model_name}{start_string}{t}.joblib', compress=1)
+
+            if load_fitted_model == True:
+                pipe = load(f'Results/Fitted_Models/{outcome}_{model_name}{start_string}{t}.joblib')
+                optimised_pipes[model_name] = pipe
+            #     ^ technically a fitted pipe
 
             # use pipeline to make predictions
             y_pred = pipe.predict(X_test)
@@ -320,7 +346,6 @@ def prediction(outcome,
                        "[FN, TP]] \n \n" +
                       str(m_cm), file=open(save_file, "a"))
 
-                test_scores[model_name] = {"F1_weighted": test_score_f1_weighted}
                 test_scores[model_name] = {"micro_precision": round(results_dict['micro avg']['precision'], 3),
                                          "micro_f1": round(results_dict['micro avg']['f1-score'], 3),
                                          "weighted_precision": round(results_dict['weighted avg']['precision'], 3),
@@ -348,11 +373,9 @@ def prediction(outcome,
                 df_class_rankings_K.to_csv(
                     rec_save_path + "{}_recomendations_{}_{}{}".format(K, model_name, start_string, t))
 
-
-    if do_testset_evaluation == True:
+        # save data for plotting
         test_scores = pd.DataFrame.from_dict(test_scores)
-        test_scores.to_csv(
-            "Results/Prediction/all_test_scores_{}{}{}.csv".format(outcome, start_string, t))
+        test_scores.to_csv("Results/Prediction/all_test_scores_{}{}{}.csv".format(outcome, start_string, t))
 
     return optimised_pipes, model_names
 

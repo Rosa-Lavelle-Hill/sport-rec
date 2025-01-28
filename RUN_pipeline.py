@@ -6,7 +6,7 @@ from Functions.interpretation import interpretation
 from Functions.plotting import run_plots, run_plots_multilabel
 from Functions.prediction import prediction
 from Functions.preprocessing import preprocess
-from fixed_params import outcome, multi_label, smote, single_label_scoring, multi_label_scoring
+from fixed_params import outcome, multi_label, smote, single_label_scoring_name, multi_label_scoring_name
 
 # Run options:
 use_pre_trained = True
@@ -70,12 +70,14 @@ if __name__ == "__main__":
                              do_Enet=do_Enet,
                              do_GB=do_GB)
 
+    # todo: plot by category, best model compared to baselines
+
     # (4) interpretation
     if only_best_model == True:
         if multi_label == True:
-            select_model_score = multi_label_scoring
+            select_model_score = multi_label_scoring_name
         if multi_label == False:
-            select_model_score = single_label_scoring
+            select_model_score = single_label_scoring_name
         # Select the column with the highest value for select_model_score
         row = results_df[results_df["Model"] == select_model_score]
         row_models = row[model_names]

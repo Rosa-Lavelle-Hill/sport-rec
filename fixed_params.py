@@ -12,7 +12,9 @@ person_id = 'ID_new'
 answer_id = "Index1"
 
 single_label_scoring = "f1_micro"
+single_label_scoring_name = "micro_f1"
 multi_label_scoring = make_scorer(f1_score, average="micro", zero_division=0)
+multi_label_scoring_name = "micro_f1"
 
 multi_label = True
 smote = True
