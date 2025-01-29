@@ -627,4 +627,63 @@ def plot_SHAP_force(i, X_test, model, save_path, save_name,
     plt.close()
     return(p)
 
-# todo: plot all 14 CMs
+
+def plot_f1_scores(df, save_path, save_name, cat_labels):
+    """
+    Plots a grouped bar chart of f1-scores for different models across categories.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing f1-scores with categories as index and models as columns.
+    """
+    # Set the position of the bars on the x-axis
+    num_models = len(df.columns)
+    bar_width = 0.2
+    indices = np.arange(len(df))
+
+    display_names = {
+        'Dummy_MF': 'Dummy Most Frequent',
+        'Dummy_Stratified': 'Dummy Stratified',
+        'Dummy_Random': 'Dummy Random',
+        'GB': 'Gradient Boosting'
+    }
+
+    # Create subplots
+    plt.figure(figsize=(15, 8))
+
+    # Define colors for each model
+    colors = ["plum", "coral", "cornflowerblue", "lightsteelblue"]
+
+    # Plot each model
+    for i, model in enumerate(df.columns):
+        plt.bar(indices + i * bar_width, df[model], width=bar_width,
+                label=display_names.get(model, model), color=colors[i])
+
+    # Add labels and title
+    plt.xlabel('Sports Category', fontsize=14)
+    plt.ylabel('F1 Score', fontsize=14)
+    plt.title('Model Performance Comparison by Category (F1-Score)', fontsize=16)
+    # Convert index (0-9) to 1-10 and map to category names
+    x_labels = [cat_labels.get(str(i + 1), f"Category {i + 1}") for i in range(10)]
+    plt.xticks(indices + bar_width * (num_models - 1) / 2, x_labels, fontsize=12, rotation=45, ha="right")
+    plt.ylim(0, 1)  # Assuming f1-scores range between 0 and 1
+
+    # Add legend
+    plt.legend(title='Models', fontsize=12, title_fontsize=12)
+
+    # Add grid for better readability
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Add data labels on top of each bar
+    for i, model in enumerate(df.columns):
+        for j, value in enumerate(df[model]):
+            plt.text(indices[j] + i * bar_width, value + 0.01, f"{value:.2f}", ha='center', va='bottom', fontsize=9)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.savefig(save_path + save_name + '.png')
+    plt.close()
+    plt.clf()
+    plt.cla()
+    plt.close()
+
+

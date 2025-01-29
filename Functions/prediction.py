@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pandas as pd
 import datetime as dt
@@ -9,6 +11,7 @@ from sklearn.metrics import confusion_matrix, classification_report, multilabel_
 from sklearn.preprocessing import MultiLabelBinarizer
 
 from Functions.plotting import plot_confusion_matrix
+from Functions.read import append_if_not_exists
 from fixed_params import decimal_places, single_label_scoring, multi_label_scoring, verbose, random_state, nfolds,\
     categorical_features, test_size
 from sklearn import metrics
@@ -266,8 +269,10 @@ def prediction(outcome,
                 all_base_results[dum_name] = dummy_results_dict
 
         # save baselines per category to plot later
-        all_base_results = pd.DataFrame.from_dict(all_base_results)
-        all_base_results.to_csv("Results/Prediction/Baseline_per_category/all_base_scores_{}{}{}.csv".format(outcome, start_string, t))
+        all_base_results_df = pd.DataFrame.from_dict(all_base_results)
+        all_base_results_df.to_csv("Results/Prediction/Baseline_per_category/all_base_scores_{}{}{}.csv".format(outcome, start_string, t))
+        with open("Results/Prediction/Baseline_per_category/all_base_scores_{}{}{}.json".format(outcome, start_string, t), "w") as json_file:
+            json.dump(all_base_results, json_file, indent=4)
 
         # Test ML Models =========================================================================================
 
@@ -311,10 +316,9 @@ def prediction(outcome,
                 test_log_loss = round(metrics.log_loss(y_test, y_prob), decimal_places)
                 test_cm = metrics.multilabel_confusion_matrix(y_test, y_pred)
                 cm = confusion_matrix(y_test, y_pred)
-                print("Best {} model performance on test data;"
+                append_if_not_exists(save_file, "Best {} model performance on test data;"
                       "F1_weighted: {}, log loss: {}, CM: \n {}".format(model_name, test_score_f1_weighted,
-                                                                        test_log_loss, test_cm),
-                      file=open(save_file, "a"))
+                                                                        test_log_loss, test_cm))
 
                 # plot confusion_matrix
                 cm_save_path = "Results/Prediction/Confusion_Matrix/"
@@ -335,16 +339,17 @@ def prediction(outcome,
                     output_dict=True,
                     zero_division=0.0
                 )
-                print("Best {} model performance on test data:\n".format(model_name) +
-                      str(classification_report(y_test, y_pred, output_dict=False)), file=open(save_file, "a"))
+                append_if_not_exists(save_file, "Best {} model performance on test data:\n".format(model_name) +
+                      str(classification_report(y_test, y_pred, output_dict=False)))
 
                 m_cm = multilabel_confusion_matrix(y_test, y_pred)
-                print("Confusion matrices:\n".format(model_name) +
+
+                append_if_not_exists(save_file, "Confusion matrices:\n".format(model_name) +
                       " Predicted: \n"
                       "   N | P  \n"
                       "[[TN, FP] \n" +
                        "[FN, TP]] \n \n" +
-                      str(m_cm), file=open(save_file, "a"))
+                      str(m_cm))
 
                 test_scores[model_name] = {"micro_precision": round(results_dict['micro avg']['precision'], 3),
                                          "micro_f1": round(results_dict['micro avg']['f1-score'], 3),
