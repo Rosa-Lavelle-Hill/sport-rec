@@ -302,8 +302,8 @@ def interpretation(df,
                             explainer = shap.TreeExplainer(classifier)
 
                         shap_interaction = explainer.shap_interaction_values(X_test_p)
-                        plot_SHAP_interaction(shap_interaction, save_path=save_path, X=pd.DataFrame(X_test_p),
-                                              col_list=nice_feature_names, fontsize=8, plot_cols='all',
+                        plot_SHAP_interaction(shap_interaction, save_path=save_path,
+                                              col_list=nice_feature_names, title=f"{cat_name}",
                                               save_name=f"SHAP_interaction_{start_string}_{model_name}_cat{cat_num}")
                         # plot_SHAP_summary_interaction(shap_interaction, X=pd.DataFrame(X_test_p), save_path=save_path,
                         #                               col_list=nice_feature_names, fontsize=8,
