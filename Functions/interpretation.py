@@ -9,7 +9,7 @@ from sklearn.inspection import permutation_importance
 from sklearn.model_selection import train_test_split
 from joblib import dump, load
 from Functions.plotting import plot_impurity, plot_permutation, plot_SHAP, plot_impurity_ml, heatmap_importance, \
-    plot_SHAP_df, plot_SHAP_force, plot_forceSHAP_df
+    plot_SHAP_df, plot_SHAP_force, plot_forceSHAP_df, plot_SHAP_interaction, plot_SHAP_summary_interaction
 from fixed_params import decimal_places, multi_label_scoring, single_label_scoring, verbose, \
     random_state, categorical_features, multi_label, smote, n_permutations
 from fixed_params import n_shap_features as n_features
@@ -30,6 +30,7 @@ def interpretation(df,
                    load_fitted_model,
                    do_shap_force_plot,
                    interaction_plots,
+                   load_explainer
                    ):
 
     # redefine X and y
@@ -197,9 +198,12 @@ def interpretation(df,
                         class_shap_df = pd.DataFrame(shap_values, columns=feature_names)
 
                         # Save to enable reload
-                        save_name = f"category_{cat_num}_{model_name}.csv"
+                        expl_save_name = f"category_{cat_num}_{model_name}.csv"
                         class_shap_df.to_csv(f"Results/Importance/SHAP/{outcome}/"+save_name)
                         shap_dict[cat_num] = class_shap_df
+
+                        expl_save_path = "Results/Importance/SHAP/sport_kat_d2/Plots/explainer/"
+                        dump(explainer, f"{expl_save_path}{save_name}.pkl")
 
                     # Save the dictionary as a pickle
                     with open(filename, 'wb') as file:
@@ -287,10 +291,23 @@ def interpretation(df,
                             plt.close()
 
                     if interaction_plots == True:
-                        shap_interaction = explainer.shap_interaction_values(X_test)
+                        save_path = "Results/Importance/SHAP/sport_kat_d2/Plots/Interaction_values/"
 
+                        if load_explainer == True:
+                            expl_save_path = "Results/Importance/SHAP/sport_kat_d2/Plots/explainer"
+                            expl_save_name = f"category_{cat_num}_{model_name}.csv"
+                            explainer = load(f"{expl_save_path}{expl_save_name}.pkl")
+                        else:
+                            classifier = fitted_pipeline.named_steps['classifier']
+                            explainer = shap.TreeExplainer(classifier)
 
-
+                        shap_interaction = explainer.shap_interaction_values(X_test_p)
+                        plot_SHAP_interaction(shap_interaction, save_path=save_path, X=pd.DataFrame(X_test_p),
+                                              col_list=nice_feature_names, fontsize=8, plot_cols='all',
+                                              save_name=f"SHAP_interaction_{start_string}_{model_name}_cat{cat_num}")
+                        # plot_SHAP_summary_interaction(shap_interaction, X=pd.DataFrame(X_test_p), save_path=save_path,
+                        #                               col_list=nice_feature_names, fontsize=8,
+                        #                               save_name=f"SHAP_summary_inter_{start_string}_{model_name}_{cat_num}")
 
 
     return

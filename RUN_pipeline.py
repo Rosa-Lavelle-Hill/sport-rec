@@ -99,8 +99,9 @@ if __name__ == "__main__":
                    model_names=model_names,
                    best_model=best_model,
                    load_fitted_model=True,
-                   do_shap_force_plot=True,
+                   do_shap_force_plot=False,
                    interaction_plots=True,
+                   load_explainer=False
                    )
 
     end = dt.datetime.now()

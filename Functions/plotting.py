@@ -687,3 +687,61 @@ def plot_f1_scores(df, save_path, save_name, cat_labels):
     plt.close()
 
 
+
+
+def plot_SHAP_interaction(shap_interaction_values, X, save_path, save_name, col_list, plot_cols = 'all',
+                          xlab="", ylab="", title="", fontsize=12):
+    # Get absolute mean of matrices
+    interaction_mean = np.mean(np.abs(shap_interaction_values), axis=0)
+
+
+    # df = pd.DataFrame(interaction_mean, index=col_list, columns=col_list)
+    # # times off-diagonal by 2
+    # df.where(df.values == np.diagonal(df), df.values * 2, inplace=True)
+
+    # if plot_cols != 'all':
+    #     # plot only highest values or cols in list
+    #     df_reduced = df[plot_cols]
+    #     df_reduced = df_reduced.loc[plot_cols]
+    #     df = df_reduced
+
+    # Create a heatmap of the mean interaction values
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(interaction_mean, xticklabels=col_list, yticklabels=col_list,
+                cmap="coolwarm", annot=True, fmt=".1f")
+    plt.title("SHAP Interaction Heatmap")
+    plt.savefig(save_path + save_name + ".png", dpi=300, bbox_inches="tight")
+    plt.clf()
+    plt.cla()
+    plt.close()
+
+    # # plot
+    # plt.figure(figsize=(20, 20), facecolor='w', edgecolor='k')
+    # sns.set(font_scale=1)
+    # sns.heatmap(df, cmap='coolwarm', annot=True, fmt='.3g', cbar=False)
+    # plt.yticks(rotation=0)
+    # plt.title(title, fontsize=fontsize)
+    # plt.xlabel(xlab, fontsize=fontsize)
+    # plt.ylabel(ylab, fontsize=fontsize)
+    # plt.subplots_adjust(left=0.2, bottom=0.2)
+    # plt.savefig(save_path + save_name + ".png")
+    # plt.clf()
+    # plt.cla()
+    # plt.close()
+    return
+
+
+
+def plot_SHAP_summary_interaction(shap_interaction_values, X, save_path, save_name, col_list="",
+                                  xlab="", ylab="", title="", fontsize=10):
+    shap.summary_plot(shap_interaction_values, X)
+    plt.yticks(rotation=0)
+    plt.title(title, fontsize=fontsize)
+    plt.xlabel(xlab, fontsize=fontsize)
+    plt.ylabel(ylab, fontsize=fontsize)
+    plt.savefig(save_path + save_name + ".png")
+    plt.clf()
+    plt.cla()
+    plt.close()
+    return
+
