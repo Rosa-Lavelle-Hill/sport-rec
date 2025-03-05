@@ -234,8 +234,8 @@ def construct_dummy_pipelines_old(numeric_features_index, categorical_features_i
     oh_encoder = OneHotEncoder(handle_unknown='error', drop="if_binary")
     dummy_mf = DummyClassifier(strategy="most_frequent")
     dummy_zero = DummyClassifier(strategy="constant", constant=0)
-    dummy_rand = DummyClassifier(strategy="uniform")
-    dummy_strat = DummyClassifier(strategy="stratified")
+    dummy_rand = DummyClassifier(strategy="uniform", random_state=random_state)
+    dummy_strat = DummyClassifier(strategy="stratified", random_state=random_state)
 
 
     # Bayesian ridge is quicker/simpler than RF:
