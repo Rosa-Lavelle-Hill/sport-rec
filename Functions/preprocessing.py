@@ -1,6 +1,8 @@
 import json
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 from fixed_params import categorical_features, goal_vars, x_lab, person_id, answer_id
 from Functions.plotting import plot_hist, plot_count, plot_by_var, plot_perc
 
@@ -111,6 +113,38 @@ def preprocess(df, outcome):
     # drop answer id
     df.drop([answer_id], axis=1, inplace=True)
 
+    # plot the distributions of the Goal variables across...
+    sns.set_style("whitegrid")
+    save_path = "Outputs/Descriptives/Goal_Distributions/"
+    with open('Data/Dicts_and_Lists/goal_col_names.json', 'r') as file:
+        goal_col_names = json.load(file)
+    label_dict = {int(k) if isinstance(k, str) and k.isdigit() else k: v for k, v in short_names_dict.items()}
+
+    for var in goal_vars:
+        var_name = goal_col_names[var]
+        plt.figure(figsize=(10, 6))
+
+        # 1) whole sample
+        sns.kdeplot(df[var], fill=True, color="black", label="Overall", alpha=0.5)
+
+        # 2) each category
+        for category in df[outcome].unique():
+            subset = df[df[outcome] == category]
+            sns.kdeplot(subset[var], fill=True, label=f"{label_dict[category]}", alpha=0.5)
+
+        # Formatting
+        plt.title(f"Distribution of {var_name}", fontsize=14)
+        plt.xlabel(var_name)
+        plt.ylabel("Density")
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(f"{save_path}{outcome}_{var}.png")
+        plt.close()
+        plt.clf()
+        plt.cla()
+        plt.close()
+
+    breakpoint()
     # save preprocessed data:
     df.to_csv("Data/Preprocessed/preprocessed_{}.csv".format(outcome))
     print(f"Preprocessing finished.\nFinal processed data shape: {df.shape}")

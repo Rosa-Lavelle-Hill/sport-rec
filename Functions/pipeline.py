@@ -228,7 +228,7 @@ def construct_smote_pipelines(numeric_features_index, categorical_features_index
 
 
 
-def construct_dummy_pipelines(numeric_features_index, categorical_features_index, multi_label):
+def construct_dummy_pipelines_old(numeric_features_index, categorical_features_index, multi_label):
     # define stages of pipeline
     scaler = StandardScaler()
     oh_encoder = OneHotEncoder(handle_unknown='error', drop="if_binary")
@@ -311,3 +311,18 @@ def construct_dummy_pipelines(numeric_features_index, categorical_features_index
         ])
 
     return pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat
+
+
+def construct_dummy_pipelines(numeric_features_index, categorical_features_index, multi_label):
+    if multi_label == True:
+        pipe_dum_mf = Pipeline([('ml', MultiOutputClassifier(DummyClassifier(strategy="most_frequent")))])
+        pipe_dum_zero = Pipeline([('ml', MultiOutputClassifier(DummyClassifier(strategy="constant", constant=0)))])
+        pipe_dum_random = Pipeline([('ml', MultiOutputClassifier(DummyClassifier(strategy="uniform")))])
+        pipe_dum_strat = Pipeline([('ml', MultiOutputClassifier(DummyClassifier(strategy="stratified")))])
+    else:
+        pipe_dum_mf = Pipeline([('ml', DummyClassifier(strategy="most_frequent"))])
+        pipe_dum_zero = Pipeline([('ml', DummyClassifier(strategy="constant", constant=0))])
+        pipe_dum_random = Pipeline([('ml', DummyClassifier(strategy="uniform"))])
+        pipe_dum_strat = Pipeline([('ml', DummyClassifier(strategy="stratified"))])
+
+        return pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat
