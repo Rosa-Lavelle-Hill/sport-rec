@@ -1,3 +1,4 @@
+import random
 import pandas as pd
 import shap
 import json
@@ -26,8 +27,9 @@ def interpretation(df,
                    recalc_SHAP,
                    model_names,
                    best_model,
-                   load_fitted_model=True,
-                   do_shap_force_plot=True
+                   load_fitted_model,
+                   do_shap_force_plot,
+                   interaction_plots,
                    ):
 
     # redefine X and y
@@ -249,48 +251,45 @@ def interpretation(df,
                               save_path=shap_plot_save_path,
                               save_name=save_name, title=f"{cat_name}")
 
-                    # Example force plot for person_num
+                    # Example force plot for random person_num
+                    n_examples = 30
                     if do_shap_force_plot == True:
-                        person_num = 0
+                        random.seed(random_state)
+                        person_nums = [random.randint(1, X_test.shape[0]) for _ in range(n_examples)]
+                        for person_num in person_nums:
+                            print(person_num)
+                            # Select datapoint and reshape it to 2D
+                            datapoint = X_test.iloc[[person_num]]
 
-                        # Select datapoint and reshape it to 2D
-                        datapoint = X_test.iloc[[person_num]]
+                            # Transform the single datapoint
+                            datapoint_p = preprocessor.transform(datapoint)
 
-                        # Transform the single datapoint
-                        datapoint_p = preprocessor.transform(datapoint)
+                            classifier = fitted_pipeline.named_steps['classifier']
+                            explainer = shap.TreeExplainer(classifier)
 
-                        classifier = fitted_pipeline.named_steps['classifier']
-                        explainer = shap.TreeExplainer(classifier)
+                            # get shap values for datapoint
+                            shap_values = explainer.shap_values(datapoint_p)
 
-                        # get shap values for datapoint
-                        shap_values = explainer.shap_values(datapoint_p)
+                            shap.initjs()
+                            shap.force_plot(
+                                explainer.expected_value,
+                                shap_values[0],
+                                np.round(datapoint_p, 2),
+                                feature_names=feature_names,
+                                matplotlib=True,
+                                show=False
+                            )
+                            save_path_force = "Results/Importance/SHAP/sport_kat_d2/Plots/Force_examples/"
+                            plt.savefig(f"{save_path_force}{model_name}_{start_string}{t}_cat{cat_num}_datapoint_{person_num}.png",
+                                        bbox_inches='tight')
+                            plt.clf()
+                            plt.cla()
+                            plt.close()
 
-                        shap.initjs()
-                        shap.force_plot(
-                            explainer.expected_value,
-                            shap_values[0],
-                            np.round(datapoint_p, 2),
-                            feature_names=feature_names,
-                            matplotlib=True,
-                            show=False
-                        )
-                        save_path_force = "Results/Importance/SHAP/sport_kat_d2/Plots/Force_examples/"
-                        plt.savefig(f"{save_path_force}{model_name}_{start_string}{t}_cat{cat_num}_datapoint_{person_num}.png",
-                                    bbox_inches='tight')
-                        plt.clf()
-                        plt.cla()
-                        plt.close()
+                    if interaction_plots == True:
+                        shap_interaction = explainer.shap_interaction_values(X_test)
 
-                    # # if interaction_plots == True:
-                    #     if only_df1 == True:
-                    #         if df_num != '1':
-                    #             continue
-                    #     SHAP_tree_interaction(X=X, y=y, df_num=df_num, start_string=start_string,
-                    #                           rf_params=rf_params, names=names, n_inter_features=10,
-                    #                           save_path=analysis_path + "Results/Importance/Plots/Test_Data/{}/interaction/".format(
-                    #                               model))
 
-                    # todo: treat each shap df as different? currently 10x importance dfs
 
 
 

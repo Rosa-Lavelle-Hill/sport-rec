@@ -382,7 +382,6 @@ def prediction(outcome,
                 df_class_rankings_K = df_class_rankings.iloc[:, 0:K]
                 df_class_rankings_K.to_excel(
                     rec_save_path + "{}_recomendations_{}_{}{}.xlsx".format(K, model_name, start_string, t))
-                breakpoint()
 
         # save data for plotting
         test_scores = pd.DataFrame.from_dict(test_scores)

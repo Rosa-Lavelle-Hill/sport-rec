@@ -97,7 +97,10 @@ if __name__ == "__main__":
                    do_SHAP_importance=True,
                    recalc_SHAP=False,
                    model_names=model_names,
-                   best_model=best_model
+                   best_model=best_model,
+                   load_fitted_model=True,
+                   do_shap_force_plot=True,
+                   interaction_plots=True,
                    )
 
     end = dt.datetime.now()
