@@ -49,7 +49,7 @@ if __name__ == "__main__":
                                  t=t,
                                  multi_label=multi_label,
                                  do_testset_evaluation=do_testset_evaluation,
-                                 predict_probab=False,
+                                 predict_probab=True,
                                  do_Enet=do_Enet,
                                  do_GB=do_GB
                                  )

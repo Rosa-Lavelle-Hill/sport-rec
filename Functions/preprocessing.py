@@ -144,7 +144,6 @@ def preprocess(df, outcome):
         plt.cla()
         plt.close()
 
-    breakpoint()
     # save preprocessed data:
     df.to_csv("Data/Preprocessed/preprocessed_{}.csv".format(outcome))
     print(f"Preprocessing finished.\nFinal processed data shape: {df.shape}")

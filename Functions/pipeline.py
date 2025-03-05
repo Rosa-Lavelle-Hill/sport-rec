@@ -325,4 +325,4 @@ def construct_dummy_pipelines(numeric_features_index, categorical_features_index
         pipe_dum_random = Pipeline([('ml', DummyClassifier(strategy="uniform"))])
         pipe_dum_strat = Pipeline([('ml', DummyClassifier(strategy="stratified"))])
 
-        return pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat
+    return pipe_dum_mf, pipe_dum_zero, pipe_dum_random, pipe_dum_strat

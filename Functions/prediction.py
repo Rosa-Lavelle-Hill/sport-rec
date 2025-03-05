@@ -358,25 +358,31 @@ def prediction(outcome,
 
         if predict_probab == True:
             if multi_label == True:
+                rec_save_path = "Results/Recommendations/"
                 print('predicting probabilities')
+                with open("Data/Dicts_and_Lists/short_names_dict.json", 'r') as file:
+                    short_names_dict = json.load(file)
                 predicted_probabilities = pipe.predict_proba(X_test)
-                class_names = mlb.classes_
-                # todo: sub in actual class names
+                class_names_orig = mlb.classes_
+                short_names_dict = {int(k) if isinstance(k, str) and k.isdigit() else k: v for k, v in short_names_dict.items()}
                 positive_label_probabilities = [probs[:, 1] for probs in predicted_probabilities]
                 df_predicted_probabilities = np.transpose(pd.DataFrame(positive_label_probabilities))
-                df_predicted_probabilities.columns = class_names
+                df_predicted_probabilities.columns = list(short_names_dict.values())
+                df_predicted_probabilities = round(df_predicted_probabilities, 2)
+                df_predicted_probabilities.to_excel(rec_save_path + "all_probabilities_{}_{}{}.xlsx".format(model_name, start_string, t))
                 # Calculate class rankings
                 class_rankings = np.argsort(-df_predicted_probabilities.values, axis=1) + 1
                 # Create a DataFrame of class rankings
                 df_class_rankings = pd.DataFrame(class_rankings,
                                                  columns=[f'Rank_{i}' for i in range(1, len(class_rankings[0]) + 1)])
-                rec_save_path = "Results/Recommendations/"
-                df_class_rankings.to_csv(rec_save_path + "all_recomendations_{}_{}{}".format(model_name, start_string, t))
+
+                df_class_rankings.to_excel(rec_save_path + "all_recomendations_{}_{}{}.xlsx".format(model_name, start_string, t))
                 # Convert to top K recommendations
                 K=3
                 df_class_rankings_K = df_class_rankings.iloc[:, 0:K]
-                df_class_rankings_K.to_csv(
-                    rec_save_path + "{}_recomendations_{}_{}{}".format(K, model_name, start_string, t))
+                df_class_rankings_K.to_excel(
+                    rec_save_path + "{}_recomendations_{}_{}{}.xlsx".format(K, model_name, start_string, t))
+                breakpoint()
 
         # save data for plotting
         test_scores = pd.DataFrame.from_dict(test_scores)
