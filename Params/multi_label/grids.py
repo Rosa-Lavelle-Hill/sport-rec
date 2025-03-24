@@ -29,12 +29,12 @@ enet_params = {"ml__estimator__C":[0.001, 0.01, 0.5, 1], # Inverse of regulariza
 # ^ grid 24th Jan
 
 # if run again:
-rf_params_sm ={'estimator__classifier__max_depth': [10, 12, 15],
-               'estimator__classifier__max_features': [0.7, 0.85],
-               'estimator__classifier__min_samples_split': [2],
+rf_params_sm ={'estimator__classifier__max_depth': [10, 12, 15, 17],
+               'estimator__classifier__max_features': [0.7, 0.85, 0.9, 1],
+               'estimator__classifier__min_samples_split': [2, 3, 4],
                'estimator__classifier__n_estimators': [800],
                'estimator__classifier__random_state': [93],
-               'estimator__oversampler__k_neighbors': [5, 7],
+               'estimator__oversampler__k_neighbors': [3, 5, 7],
                'estimator__oversampler__sampling_strategy': ['auto']}
 
 # gb_params_sm = {"estimator__classifier__min_samples_leaf": [2, 4, 6],
@@ -50,14 +50,14 @@ rf_params_sm ={'estimator__classifier__max_depth': [10, 12, 15],
 # ^ grid 24th Jan
 
 # if run again:
-gb_params_sm = {'estimator__classifier__learning_rate': [0.001, 0.01],
-                'estimator__classifier__max_depth': [3, 5],
-                'estimator__classifier__max_features': [9], # /11, before 0.7 ==8
-                'estimator__classifier__min_samples_leaf': [2],
+gb_params_sm = {'estimator__classifier__learning_rate': [0.001, 0.01, 0.05],
+                'estimator__classifier__max_depth': [3, 5, 10],
+                'estimator__classifier__max_features': [9, 11, 1.0], # /11, before 0.7 ==8
+                'estimator__classifier__min_samples_leaf': [2, 3, 4],
                 'estimator__classifier__n_estimators': [800],
                 'estimator__classifier__random_state': [93],
                 'estimator__classifier__subsample': [0.7, 0.8],
-                'estimator__oversampler__k_neighbors': [5, 7],
+                'estimator__oversampler__k_neighbors': [3, 5, 7],
                 'estimator__oversampler__sampling_strategy': ['auto']}
 
 log_params_sm = {"estimator__classifier__penalty": [None]}
@@ -65,6 +65,6 @@ log_params_sm = {"estimator__classifier__penalty": [None]}
 enet_params_sm = {"estimator__classifier__C":[0.001, 0.01, 0.5, 1], # Inverse of regularization strength; must be a positive float. Smaller values specify stronger regularization.
               "estimator__classifier__l1_ratio": [0.2, 0.5, 0.8],
               "estimator__classifier__max_iter": [1000],
-              "estimator__oversampler__k_neighbors": [3, 5],
+              "estimator__oversampler__k_neighbors": [3, 5, 7],
               "estimator__oversampler__sampling_strategy": ['auto']
               }

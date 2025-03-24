@@ -1,0 +1,8 @@
+Log:
+Training done. Time taken: 0:00:12.103585
+params tried:
+{'estimator__classifier__max_depth': [10, 12, 15, 17], 'estimator__classifier__max_features': [0.7, 0.85, 0.9, 1], 'estimator__classifier__min_samples_split': [2, 3, 4], 'estimator__classifier__n_estimators': [800], 'estimator__classifier__random_state': [93], 'estimator__oversampler__k_neighbors': [3, 5, 7], 'estimator__oversampler__sampling_strategy': ['auto']}
+
+Best training make_scorer(f1_score, response_method='predict', average=micro, zero_division=0) score: 0.407. Best model params:
+{'estimator__classifier__penalty': None}.
+

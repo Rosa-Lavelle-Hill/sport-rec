@@ -9,7 +9,7 @@ from Functions.preprocessing import preprocess
 from fixed_params import outcome, multi_label, smote, single_label_scoring_name, multi_label_scoring_name
 
 # Run options:
-use_pre_trained = True
+use_pre_trained = False
 test_run = False
 do_testset_evaluation = True
 only_best_model = True

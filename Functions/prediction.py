@@ -214,7 +214,7 @@ def prediction(outcome,
                 joblib.dump(pipe, f'{model_save}{outcome}_{model_name}{start_string}{t}.joblib', compress=1)
 
             best_train_score = round(abs(grid_search.best_score_), decimal_places)
-            print("params tried:\n{}\n".format(rf_params), file=open(save_file, "a"))
+            print("params tried:\n{}\n".format(params), file=open(save_file, "a"))
 
             print(
                 "Best training {} score: {}. Best model params:\n{}.\n".format(scoring, best_train_score, best_params),

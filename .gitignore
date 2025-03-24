@@ -31,3 +31,5 @@ Results/Fitted_Models/*.joblib
 
 # C extensions
 *.so
+
+venv/*
