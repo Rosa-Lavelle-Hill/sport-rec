@@ -13,9 +13,6 @@ __pycache__/
 *.zip
 *.pkl
 
-# .pkl, .txt, and .csv exceptions
-!Results/**/*_24_Jan_2025__17.50*
-
 # Txt exceptions
 !requirements.txt
 
@@ -33,6 +30,9 @@ Data/*
 !Data/Meta/
 !Data/Dicts_and_Lists/
 !Data/Meta/*_kat_d2*
+
+# .pkl, .txt, and .csv exceptions
+!Results/**/*_24_Jan_2025__17.50*
 
 # too large
 Results/Fitted_Models/*.joblib
