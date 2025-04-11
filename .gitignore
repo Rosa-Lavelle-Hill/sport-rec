@@ -12,6 +12,7 @@ __pycache__/
 *.txt
 *.zip
 *.pkl
+*.json
 
 # Txt exceptions
 !requirements.txt
@@ -29,9 +30,10 @@ Data/*
 # Data exceptions:
 !Data/Meta/
 !Data/Dicts_and_Lists/
+!Data/Dicts_and_Lists/** 
 !Data/Meta/*_kat_d2*
 
-# .pkl, .txt, and .csv exceptions
+# .pkl, .txt, and .csv, .json exceptions
 !Results/**/*_24_Jan_2025__17.50*
 
 # too large
