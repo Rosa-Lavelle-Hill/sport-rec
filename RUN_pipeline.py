@@ -30,11 +30,8 @@ if __name__ == "__main__":
     if use_pre_trained == False:
         start_string = start.strftime('_%d_%b_%Y__%H.%M')
     else:
-        # start_string = "_11_Jun_2023__07.44"
-        # start_string = "_19_Aug_2023__20.50"
-        # start_string = "_10_Jan_2025__17.00"
-        # start_string = "_24_Jan_2025__17.50"
-        start_string = "_23_Mar_2025__19.46"
+        start_string = "_24_Jan_2025__17.50"
+        # start_string = "_23_Mar_2025__19.46" -- Run with a large grid but no improvement
 
     if test_run == True:
         t= "_test"

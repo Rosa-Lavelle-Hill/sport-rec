@@ -11,7 +11,10 @@ __pycache__/
 *.jpg
 #*.txt
 *.zip
-#*.pkl
+*.pkl
+
+# .pkl and .csv exceptions
+!Results/**/*_24_Jan_2025__17.50*
 
 # Txt exceptions
 !requirements.txt
@@ -19,7 +22,7 @@ __pycache__/
 ## Data
 Data/*
 
-#*.csv
+*.csv
 *.numbers
 *.xlsx
 *.dot
