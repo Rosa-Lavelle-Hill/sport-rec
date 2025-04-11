@@ -9,11 +9,11 @@ __pycache__/
 *.pdf
 *.jpeg
 *.jpg
-#*.txt
+*.txt
 *.zip
 *.pkl
 
-# .pkl and .csv exceptions
+# .pkl, .txt, and .csv exceptions
 !Results/**/*_24_Jan_2025__17.50*
 
 # Txt exceptions
