@@ -29,6 +29,11 @@ Data/*
 *.doc
 *.sav
 
+# Data exceptions:
+!Data/Meta/
+!Data/Dicts_and_Lists/
+!Data/Meta/*_kat_d2*
+
 # too large
 Results/Fitted_Models/*.joblib
 
