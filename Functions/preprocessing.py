@@ -144,6 +144,79 @@ def preprocess(df, outcome):
         plt.cla()
         plt.close()
 
+    # Get descriptives for paper:
+    print("Additional descriptives for paper...")
+    descriptives_file = "/Users/dhlab-admin/Documents/Rosa/sport-rec/Outputs/Descriptives/paper_descriptives_print.txt"
+    
+    # a) what % reported 2 categories
+    counts = df['ID_new'].value_counts()
+    total_unique = len(counts)
+    percent_twice = (counts == 2).sum() / total_unique * 100
+    string = f"Percentage of people appearing exactly twice: {percent_twice:.2f}%"
+    print(string)
+    with open(descriptives_file, "w") as f:
+        f.write(string + "\n")
+
+    # b) what % reported 3 categories
+    percent_thrice = (counts == 3).sum() / total_unique * 100
+    string = f"Percentage of people appearing exactly three times: {percent_thrice:.2f}%"
+    print(string)
+    with open(descriptives_file, "a") as f:
+        f.write(string + "\n")
+
+
+    # for completeness, % who appear exactly once
+    percent_once = (counts == 1).sum() / total_unique * 100
+    string = f"Percentage of people appearing exactly once: {percent_once:.2f}%"
+    print(string)
+    with open(descriptives_file, "w") as f:
+        f.write(string + "\n")
+
+    # c) total reported acrorss whole sample
+    string = f"Total activities across whole sample: {df.shape[0]:.0f}"
+    print(string)
+    with open(descriptives_file, "a") as f:
+        f.write(string + "\n")
+
+    # d) % female : male
+    unique_people = df.drop_duplicates(subset='ID_new')
+    gender_counts = unique_people['sex'].value_counts(normalize=True) * 100
+    string = f"Female: {gender_counts.iloc[0]:.2f}%; Male: {gender_counts.iloc[1]:.2f}%"
+    print(string)
+    with open(descriptives_file, "a") as f:
+        f.write(string + "\n")
+
+    # e) what % had atleast a high school diploma
+    edu_counts = unique_people['edu'].value_counts(normalize=True) * 100
+    string = f"Education % for category 1: {edu_counts.iloc[1]:.2f}%; category 2 (atleast highschool diploma): {edu_counts.iloc[0]:.2f}%; and missing info: {edu_counts.iloc[2]:.2f}%;"
+    print(string)
+    with open(descriptives_file, "a") as f:
+        f.write(string + "\n")
+
+    # f) what % did less than 75 minutes of exercise/sport a week
+    ex_mins_counts = unique_people['sport_min_kat'].value_counts(normalize=True) * 100
+    string = (
+    "Exercise mins. per week counts (% for unique individuals):\n"
+    + ex_mins_counts.round(2).to_string())
+    print(string)
+    with open(descriptives_file, "a") as f:
+        f.write(string + "\n")
+
+    # g) average and SD age
+    original_count = len(unique_people)
+    removed_df = unique_people[(unique_people['age'] < 18) | (unique_people['age'] > 65)]
+    df_filtered = unique_people[(unique_people['age'] >= 18) & (unique_people['age'] <= 65)]
+    filtered_count = len(df_filtered)
+    removed_count = original_count - filtered_count
+    print(f"Removed {removed_count} individuals who's age was > 65 or <18.")
+    print(removed_df['age'].value_counts().sort_index())  # To see frequency of each removed age
+    mean_age = df_filtered['age'].mean()
+    sd_age = df_filtered['age'].std()
+    string = f"Mean age: {mean_age:.2f} (SD= {sd_age:.2f})"
+    print(string)
+    with open(descriptives_file, "a") as f:
+        f.write(string + "\n")
+
     # save preprocessed data:
     df.to_csv("Data/Preprocessed/preprocessed_{}.csv".format(outcome))
     print(f"Preprocessing finished.\nFinal processed data shape: {df.shape}")
